@@ -1,13 +1,12 @@
-import { Entity, Tree, PrimaryGeneratedColumn, Column, TreeChildren, TreeParent, TreeLevelColumn, CreateDateColumn, UpdateDateColumn, ManyToMany, ManyToOne, OneToOne, JoinColumn} from "typeorm";
+import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, ManyToMany, OneToOne, JoinColumn} from "typeorm";
 import { ApiProperty } from "@nestjs/swagger";
 import { Foto } from "src/foto/foto.entity";
 
 @Entity()
-@Tree("materialized-path")
-export class Album {
+export class Tag {
 
   @PrimaryGeneratedColumn() 
-  idAlbum: number;
+  idTag: number;
 
   @ApiProperty()
   @Column() 
@@ -17,19 +16,13 @@ export class Album {
   @Column({nullable:true})
   description: string
 
-  @TreeChildren()
-  children: Album[];
-
-  @TreeParent()
-  parent: Album;
-
   @CreateDateColumn()
   createAt: Date;
 
   @UpdateDateColumn()
   updatedAt: Date;
   
-  @ManyToMany(type => Foto, foto => foto.albums)
+  @ManyToMany(type => Foto, foto => foto.tags)
   fotos: Foto[];
 
   @OneToOne(type => Foto)

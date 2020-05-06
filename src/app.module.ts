@@ -5,6 +5,11 @@ import { AppService } from './app.service';
 import { AlbumModule } from './album/album.module';
 import { Album } from './album/album.entity';
 import { FotoModule } from './foto/foto.module';
+import { Foto } from './foto/foto.entity';
+import { TagModule } from './tag/tag.module';
+import { PeopleModule } from './people/people.module';
+import { Tag } from './tag/tag.entity';
+import { People } from './people/people.entity';
 
 @Module({
   imports: [
@@ -15,13 +20,15 @@ import { FotoModule } from './foto/foto.module';
       username: 'dev',
       password: 'devplatform',
       database: 'foto',
-      entities: [Album],
+      entities: [Album,Foto,Tag,People],
       synchronize: true,
       logging: true,
       debug: true,
     }),
     AlbumModule,
     FotoModule,
+    TagModule,
+    PeopleModule,
     ],
   controllers: [AppController],
   providers: [AppService],
