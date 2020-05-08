@@ -10,7 +10,7 @@ export class People {
 
   @ApiProperty()
   @Column() 
-  title: string;
+  name: string;
 
   @ApiProperty()
   @Column({nullable:true})
