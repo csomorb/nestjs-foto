@@ -1,10 +1,11 @@
-import { Controller, Post, UseInterceptors, UploadedFile, UploadedFiles } from '@nestjs/common';
+import { Controller, Post, UseInterceptors, UploadedFile, UploadedFiles, Body, Delete, Param } from '@nestjs/common';
 import { FotoService } from './foto.service';
 import { FileInterceptor, AnyFilesInterceptor } from '@nestjs/platform-express'
 import { Foto } from './foto.entity';
 import * as Sharp from 'sharp';
 import {ExifParserFactory} from 'ts-exif-parser';
 import * as Mkdirp from  'mkdirp';
+import { FotoDto } from './foto.dto';
 
 
 @Controller('fotos')
@@ -13,7 +14,7 @@ export class FotoController {
 
     @Post('upload')
     @UseInterceptors(AnyFilesInterceptor())
-    async uploadFile(@UploadedFiles() files) {
+    async uploadFile(@UploadedFiles() files,@Body() fotoDto: FotoDto) {
         let that = this;
 
         for (const file of files) {
@@ -44,10 +45,10 @@ export class FotoController {
             if (!foto.shootDate){
                 foto.shootDate = new Date();
             }
-            const newFoto = await that.fotoService.create(foto);
+            const newFoto = await that.fotoService.create(foto,fotoDto);
             console.log(newFoto);
             let imagePath = './upload/' + newFoto.shootDate.getFullYear() + '/' + newFoto.shootDate.getMonth() + '/' + newFoto.shootDate.getDay();
-            const made = await Mkdirp.sync(imagePath);
+            await Mkdirp.sync(imagePath);
             let srcOrig = imagePath + '/' + newFoto.idFoto + '-' + newFoto.title;
             let src150 = imagePath + '/' + newFoto.idFoto + '-150.webp';
             image.toFile(srcOrig);
@@ -56,6 +57,11 @@ export class FotoController {
             newFoto.src150 = src150;
             await that.fotoService.update(''+newFoto.idFoto,newFoto);
         }
+    }
+
+    @Delete(':id')
+    async remove(@Param('id') id: string) {
+        return this.fotoService.remove(id);
     }
 
 }

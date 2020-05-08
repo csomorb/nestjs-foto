@@ -9,6 +9,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
     TypeOrmModule.forFeature([Album])
   ],
   providers: [AlbumService],
-  controllers: [AlbumController]
+  controllers: [AlbumController],
+  exports: [AlbumService]
 })
 export class AlbumModule {}

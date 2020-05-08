@@ -23,8 +23,7 @@ export class AlbumService {
     return this.albumRepository.findOne(id, { relations: ["fotos"] });
   }
 
-  async remove(id: string): Promise<void> {
-      
+  async remove(id: string): Promise<void> {    
     await this.albumRepository.delete(id);
   }
 
