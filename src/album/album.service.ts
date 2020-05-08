@@ -12,15 +12,15 @@ export class AlbumService {
   ) {}
 
   findAll(): Promise<Album[]> {
-    return this.albumRepository.find();
+    return this.albumRepository.find({ relations: ["coverPhoto"] });
   }
 
   findOne(id: string): Promise<Album> {
-    return this.albumRepository.findOne(id);
+    return this.albumRepository.findOne(id,{ relations: ["coverPhoto"] });
   }
 
-  findAlbumWithFotos(id: string): Promise<Album> {
-    return this.albumRepository.findOne(id, { relations: ["fotos"] });
+  findAlbumWithPhotos(id: string): Promise<Album> {
+    return this.albumRepository.findOne(id, { relations: ["photos", "coverPhoto"] });
   }
 
   async remove(id: string): Promise<void> {    

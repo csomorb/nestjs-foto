@@ -22,9 +22,9 @@ export class PeopleController {
         return this.peopleService.findOne(id);
     }
 
-    @Get(':id/fotos')
-    findPeopleWithFotos(@Param('id') id: string): Promise<People> {
-        return this.peopleService.findPeopleWithFotos(id);
+    @Get(':id/photos')
+    findPeopleWithPhotos(@Param('id') id: string): Promise<People> {
+        return this.peopleService.findPeopleWithPhotos(id);
     }
 
     @Put(':id')

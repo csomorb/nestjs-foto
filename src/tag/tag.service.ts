@@ -3,8 +3,8 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Tag } from './tag.entity';
 import { Repository } from 'typeorm';
 import { TagDto } from './tag.dto';
-import { Foto } from 'src/foto/foto.entity';
-import { FotoService } from 'src/foto/foto.service';
+import { Photo } from 'src/photo/photo.entity';
+import { PhotoService } from 'src/photo/photo.service';
 
 
 @Injectable()
@@ -12,7 +12,7 @@ export class TagService {
     constructor(
         @InjectRepository(Tag)
         private tagRepository: Repository<Tag>,
-        private fotoService: FotoService
+        private photoService: PhotoService
       ) {}
     
       findAll(): Promise<Tag[]> {
@@ -20,11 +20,11 @@ export class TagService {
       }
     
       findOne(id: string): Promise<Tag> {
-        return this.tagRepository.findOne(id, { relations: ["coverFoto"] });
+        return this.tagRepository.findOne(id, { relations: ["coverPhoto"] });
       }
     
-      findTagWithFotos(id: string): Promise<Tag> {
-        return this.tagRepository.findOne(id, { relations: ["fotos"] });
+      findTagWithPhotos(id: string): Promise<Tag> {
+        return this.tagRepository.findOne(id, { relations: ["photos"] });
       }
     
       async remove(id: string): Promise<void> {
@@ -40,9 +40,9 @@ export class TagService {
         const tag = new Tag();
         tag.title = tagDto.title;
         tag.description = tagDto.description;
-        if(tagDto.idCoverFoto){
-            const coverFoto: Foto = await this.fotoService.findOne(''+tagDto.idCoverFoto);
-            tag.coverFoto = coverFoto;
+        if(tagDto.idCoverPhoto){
+            const coverPhoto: Photo = await this.photoService.findOne(''+tagDto.idCoverPhoto);
+            tag.coverPhoto = coverPhoto;
         }
         return this.tagRepository.save(tag);
       }

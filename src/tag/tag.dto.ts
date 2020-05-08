@@ -5,6 +5,6 @@ export class TagDto {
     readonly title: string;
     @ApiProperty({description: 'Description of the tag'})
     readonly description: string;
-    @ApiProperty({description: 'Id of the cover Foto', type: Number})
-    readonly idCoverFoto?: number;
+    @ApiProperty({description: 'Id of the cover Photo', type: Number})
+    readonly idCoverPhoto?: number;
 }

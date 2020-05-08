@@ -1,6 +1,6 @@
 import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, ManyToMany, OneToOne, JoinColumn} from "typeorm";
 import { ApiProperty } from "@nestjs/swagger";
-import { Foto } from "src/foto/foto.entity";
+import { Photo } from "src/photo/photo.entity";
 
 @Entity()
 export class Tag {
@@ -22,11 +22,11 @@ export class Tag {
   @UpdateDateColumn()
   updatedAt: Date;
   
-  @ManyToMany(type => Foto, foto => foto.tags)
-  fotos: Foto[];
+  @ManyToMany(type => Photo, photo => photo.tags)
+  photos: Photo[];
 
-  @OneToOne(type => Foto)
+  @OneToOne(type => Photo)
   @JoinColumn()
-  coverFoto: Foto;
+  coverPhoto: Photo;
 
 }

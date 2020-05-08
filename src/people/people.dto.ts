@@ -7,6 +7,6 @@ export class PeopleDto {
     readonly description: string;
     @ApiProperty({description: 'Birthday date'})
     readonly birthDay?: string;
-    @ApiProperty({description: 'Id of the profil foto', type: Number})
-    readonly idProfilFoto?: number;
+    @ApiProperty({description: 'Id of the profil photo', type: Number})
+    readonly idProfilPhoto?: number;
 }

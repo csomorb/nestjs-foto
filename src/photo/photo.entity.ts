@@ -5,10 +5,10 @@ import { Tag } from "src/tag/tag.entity";
 import { People } from "src/people/people.entity";
 
 @Entity()
-export class Foto {
+export class Photo {
 
   @PrimaryGeneratedColumn() 
-  idFoto: number;
+  idPhoto: number;
 
   @ApiProperty()
   @Column() 
@@ -51,15 +51,15 @@ export class Foto {
   @UpdateDateColumn()
   updatedAt: Date;
   
-  @ManyToMany(type => Album, album => album.fotos)
+  @ManyToMany(type => Album, album => album.photos)
   @JoinTable()
   albums: Album[];
 
-  @ManyToMany(type => Tag, tag => tag.fotos)
+  @ManyToMany(type => Tag, tag => tag.photos)
   @JoinTable()
   tags: Tag[];
 
-  @ManyToMany(type => People, people => people.fotos)
+  @ManyToMany(type => People, people => people.photos)
   @JoinTable()
   peoples: People[];
 

@@ -22,9 +22,9 @@ export class AlbumController {
         return this.albumService.findOne(id);
     }
 
-    @Get(':id/fotos')
-    findAlbumWithFotos(@Param('id') id: string): Promise<Album> {
-        return this.albumService.findAlbumWithFotos(id);
+    @Get(':id/photos')
+    findAlbumWithPhotos(@Param('id') id: string): Promise<Album> {
+        return this.albumService.findAlbumWithPhotos(id);
     }
 
     @Put(':id')

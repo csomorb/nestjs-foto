@@ -4,13 +4,13 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AlbumModule } from './album/album.module';
 import { Album } from './album/album.entity';
-import { FotoModule } from './foto/foto.module';
-import { Foto } from './foto/foto.entity';
+import { Photo } from './photo/photo.entity';
 import { TagModule } from './tag/tag.module';
 import { PeopleModule } from './people/people.module';
 import { Tag } from './tag/tag.entity';
 import { People } from './people/people.entity';
 import { MulterModule } from '@nestjs/platform-express';
+import { PhotoModule } from './photo/photo.module';
 
 @Module({
   imports: [
@@ -21,7 +21,7 @@ import { MulterModule } from '@nestjs/platform-express';
       username: 'dev',
       password: 'devplatform',
       database: 'foto',
-      entities: [Album,Foto,Tag,People],
+      entities: [Album,Photo,Tag,People],
       synchronize: true,
     //  logging: true,
     //  debug: true,
@@ -30,7 +30,7 @@ import { MulterModule } from '@nestjs/platform-express';
       dest: './fotos',
     }),
     AlbumModule,
-    FotoModule,
+    PhotoModule,
     TagModule,
     PeopleModule,
     ],

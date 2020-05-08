@@ -22,9 +22,9 @@ export class TagController {
         return this.tagService.findOne(id);
     }
 
-    @Get(':id/fotos')
-    findTagWithFotos(@Param('id') id: string): Promise<Tag> {
-        return this.tagService.findTagWithFotos(id);
+    @Get(':id/photos')
+    findTagWithPhotos(@Param('id') id: string): Promise<Tag> {
+        return this.tagService.findTagWithPhotos(id);
     }
 
     @Put(':id')

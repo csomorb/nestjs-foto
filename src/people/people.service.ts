@@ -3,15 +3,15 @@ import { People } from './people.entity';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { PeopleDto } from './people.dto';
-import { Foto } from 'src/foto/foto.entity';
-import { FotoService } from 'src/foto/foto.service';
+import { Photo } from 'src/photo/photo.entity';
+import { PhotoService } from 'src/photo/photo.service';
 
 @Injectable()
 export class PeopleService {
     constructor(
         @InjectRepository(People)
         private peopleRepository: Repository<People>,
-        private fotoService: FotoService
+        private photoService: PhotoService
       ) {}
     
       findAll(): Promise<People[]> {
@@ -19,11 +19,11 @@ export class PeopleService {
       }
     
       findOne(id: string): Promise<People> {
-        return this.peopleRepository.findOne(id,{ relations: ["profilFoto"] });
+        return this.peopleRepository.findOne(id,{ relations: ["profilPhoto"] });
       }
     
-      findPeopleWithFotos(id: string): Promise<People> {
-        return this.peopleRepository.findOne(id, { relations: ["fotos"] });
+      findPeopleWithPhotos(id: string): Promise<People> {
+        return this.peopleRepository.findOne(id, { relations: ["photos"] });
       }
     
       async remove(id: string): Promise<void> {
@@ -42,9 +42,9 @@ export class PeopleService {
         if (peopleDto.birthDay){
             people.birthDay = new Date(peopleDto.birthDay);
         }
-        if(peopleDto.idProfilFoto){
-            const profilFoto: Foto = await this.fotoService.findOne(''+peopleDto.idProfilFoto);
-            people.profilFoto = profilFoto;
+        if(peopleDto.idProfilPhoto){
+            const profilPhoto: Photo = await this.photoService.findOne(''+peopleDto.idProfilPhoto);
+            people.profilPhoto = profilPhoto;
         }
         return this.peopleRepository.save(people);
       }
