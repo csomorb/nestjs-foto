@@ -31,6 +31,6 @@ export class People {
 
   @OneToOne(type => Foto)
   @JoinColumn()
-  coverFoto: Foto;
+  profilFoto: Foto;
 
 }

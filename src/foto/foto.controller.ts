@@ -7,7 +7,7 @@ import {ExifParserFactory} from 'ts-exif-parser';
 import * as Mkdirp from  'mkdirp';
 
 
-@Controller('foto')
+@Controller('fotos')
 export class FotoController {
     constructor(private fotoService: FotoService) {}
 

@@ -9,7 +9,6 @@ export class AlbumController {
 
     @Post()
     create(@Body() albumDto: AlbumDto): Promise<Album> {
-        console.log(albumDto);
       return this.albumService.create(albumDto);
     }
 

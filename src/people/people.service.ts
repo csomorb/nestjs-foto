@@ -4,13 +4,14 @@ import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { PeopleDto } from './people.dto';
 import { Foto } from 'src/foto/foto.entity';
+import { FotoService } from 'src/foto/foto.service';
 
 @Injectable()
 export class PeopleService {
     constructor(
         @InjectRepository(People)
         private peopleRepository: Repository<People>,
-        private fotoRepository: Repository<Foto>
+        private fotoService: FotoService
       ) {}
     
       findAll(): Promise<People[]> {
@@ -18,7 +19,7 @@ export class PeopleService {
       }
     
       findOne(id: string): Promise<People> {
-        return this.peopleRepository.findOne(id);
+        return this.peopleRepository.findOne(id,{ relations: ["profilFoto"] });
       }
     
       findPeopleWithFotos(id: string): Promise<People> {
@@ -42,7 +43,7 @@ export class PeopleService {
             people.birthDay = new Date(peopleDto.birthDay);
         }
         if(peopleDto.idProfilFoto){
-            const profilFoto = await this.fotoRepository.findOne(peopleDto.idProfilFoto);
+            const profilFoto: Foto = await this.fotoService.findOne(''+peopleDto.idProfilFoto);
             people.profilFoto = profilFoto;
         }
         return this.peopleRepository.save(people);

@@ -14,6 +14,10 @@ export class FotoService {
         return this.fotoRepository.save(foto);
     }
 
+    findOne(id: string): Promise<Foto> {
+        return this.fotoRepository.findOne(id);
+    }
+
     async update(id: string, foto: Foto): Promise<Foto> {
         let fotoSrc: Foto = await this.fotoRepository.findOne(id);
         return await this.fotoRepository.save({...fotoSrc, ...foto});
