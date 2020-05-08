@@ -22,16 +22,28 @@ export class Foto {
   weight: number;
 
   @Column("int")
-  height:number;
+  height: number;
 
   @Column("int")
-  width:number;
+  width: number;
 
   @Column("datetime")
   shootDate: Date;
 
-  @Column()
+  @Column({ type: "decimal", precision: 10, scale: 8, nullable: true })
+  lat: number;
+
+  @Column({ type: "decimal", precision: 11, scale: 8, nullable: true })
+  long: number;
+
+  @Column({ type: "int", nullable: true })
+  alti: number;
+
+  @Column({ nullable: true })
   srcOrig: string;
+
+  @Column({ nullable: true })
+  src150: string;
 
   @CreateDateColumn()
   createAt: Date;

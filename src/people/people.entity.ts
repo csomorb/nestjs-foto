@@ -16,6 +16,7 @@ export class People {
   @Column({nullable:true})
   description: string;
 
+  @ApiProperty()
   @Column({nullable:true, type: "date"})
   birthDay: Date;
 

@@ -19,9 +19,18 @@ export class AlbumService {
     return this.albumRepository.findOne(id);
   }
 
+  findAlbumWithFotos(id: string): Promise<Album> {
+    return this.albumRepository.findOne(id, { relations: ["fotos"] });
+  }
+
   async remove(id: string): Promise<void> {
       
     await this.albumRepository.delete(id);
+  }
+
+  async update(id: string, albumDto: AlbumDto): Promise<Album> {
+    let album: Album = await this.albumRepository.findOne(id);
+    return await this.albumRepository.save({...album, ...albumDto});
   }
 
   async create(albumDto: AlbumDto): Promise<Album> {

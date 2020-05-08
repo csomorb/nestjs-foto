@@ -10,6 +10,7 @@ import { TagModule } from './tag/tag.module';
 import { PeopleModule } from './people/people.module';
 import { Tag } from './tag/tag.entity';
 import { People } from './people/people.entity';
+import { MulterModule } from '@nestjs/platform-express';
 
 @Module({
   imports: [
@@ -22,8 +23,11 @@ import { People } from './people/people.entity';
       database: 'foto',
       entities: [Album,Foto,Tag,People],
       synchronize: true,
-      logging: true,
-      debug: true,
+    //  logging: true,
+    //  debug: true,
+    }),
+    MulterModule.register({
+      dest: './fotos',
     }),
     AlbumModule,
     FotoModule,

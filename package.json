@@ -28,13 +28,17 @@
     "@nestjs/typeorm": "^7.0.0",
     "@nestjsx/crud": "^4.5.0",
     "@nestjsx/crud-typeorm": "^4.5.0",
+    "@types/sharp": "^0.25.0",
     "class-transformer": "^0.2.3",
     "class-validator": "^0.12.2",
+    "mkdirp": "^1.0.4",
     "mysql": "^2.18.1",
     "reflect-metadata": "^0.1.13",
     "rimraf": "^3.0.2",
     "rxjs": "^6.5.4",
+    "sharp": "^0.25.2",
     "swagger-ui-express": "^4.1.4",
+    "ts-exif-parser": "^0.1.6",
     "typeorm": "^0.2.24"
   },
   "devDependencies": {

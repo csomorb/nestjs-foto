@@ -19,10 +19,19 @@ export class AlbumController {
     }
 
     @Get(':id')
-    findOne(@Param('id') id: string): Promise<Album> {
+    findAlbum(@Param('id') id: string): Promise<Album> {
         return this.albumService.findOne(id);
     }
 
+    @Get(':id/fotos')
+    findAlbumWithFotos(@Param('id') id: string): Promise<Album> {
+        return this.albumService.findAlbumWithFotos(id);
+    }
+
+    @Put(':id')
+    update(@Body() albumDto: AlbumDto, @Param('id') id): Promise<Album> {
+     return this.albumService.update(id, albumDto);
+    }
 
     @Delete(':id')
     async remove(@Param('id') id: string) {
