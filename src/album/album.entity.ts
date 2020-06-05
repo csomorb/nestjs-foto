@@ -7,7 +7,7 @@ import { Photo } from "src/photo/photo.entity";
 export class Album {
 
   @PrimaryGeneratedColumn() 
-  idAlbum: number;
+  id: number;
 
   @ApiProperty()
   @Column() 

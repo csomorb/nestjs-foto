@@ -1,8 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { Album } from './album.entity';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Repository, getManager } from 'typeorm';
 import { AlbumDto } from './album.dto';
+import { ApiUnsupportedMediaTypeResponse } from '@nestjs/swagger';
 
 @Injectable()
 export class AlbumService {
@@ -23,12 +24,19 @@ export class AlbumService {
     return this.albumRepository.findOne(id, { relations: ["photos", "coverPhoto"] });
   }
 
+  async findAlbumTree(){
+    const manager = getManager();
+    const trees = await manager.getTreeRepository(Album).findTrees();
+    return trees;
+  }
+  
+
   async remove(id: string): Promise<void> {    
     await this.albumRepository.delete(id);
   }
 
   async update(id: string, albumDto: AlbumDto): Promise<Album> {
-    let album: Album = await this.albumRepository.findOne(id);
+    const album: Album = await this.albumRepository.findOne(id);
     return await this.albumRepository.save({...album, ...albumDto});
   }
 

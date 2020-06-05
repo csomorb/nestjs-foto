@@ -6,6 +6,7 @@ import * as Sharp from 'sharp';
 import {ExifParserFactory} from 'ts-exif-parser';
 import * as Mkdirp from  'mkdirp';
 import { PhotoDto } from './photo.dto';
+import path = require('path');
 
 
 @Controller('photos')
@@ -15,12 +16,12 @@ export class PhotoController {
     @Post('upload')
     @UseInterceptors(AnyFilesInterceptor())
     async uploadFile(@UploadedFiles() files,@Body() photoDto: PhotoDto) {
-        let that = this;
+        const that = this;
 
         for (const file of files) {
             console.log(file);
             const image = Sharp(file.buffer);
-            let metadata = await image.metadata();
+            const metadata = await image.metadata();
             console.log(metadata)
             
             const photo = new Photo();
@@ -47,12 +48,12 @@ export class PhotoController {
             }
             const newPhoto = await that.photoService.create(photo,photoDto);
             console.log(newPhoto);
-            let imagePath = './upload/' + newPhoto.shootDate.getFullYear() + '/' + newPhoto.shootDate.getMonth() + '/' + newPhoto.shootDate.getDay();
+            const imagePath = '/upload/' + newPhoto.shootDate.getFullYear() + '/' + newPhoto.shootDate.getMonth() + '/' + newPhoto.shootDate.getDay();
             await Mkdirp.sync(imagePath);
-            let srcOrig = imagePath + '/' + newPhoto.idPhoto + '-' + newPhoto.title;
-            let src150 = imagePath + '/' + newPhoto.idPhoto + '-150.webp';
-            image.toFile(srcOrig);
-            image.resize(150, 150).webp().toFile(src150);
+            const srcOrig = imagePath + '/' + newPhoto.idPhoto + '-' + newPhoto.title;
+            const src150 = imagePath + '/' + newPhoto.idPhoto + '-150.webp';
+            image.toFile(path.join(__dirname,srcOrig));
+            image.resize(150, 150).webp().toFile(path.join(__dirname,src150));
             newPhoto.srcOrig = srcOrig;
             newPhoto.src150 = src150;
             await that.photoService.update(''+newPhoto.idPhoto,newPhoto);
