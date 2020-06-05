@@ -1,15 +1,18 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, forwardRef, Inject } from '@nestjs/common';
 import { Album } from './album.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, getManager } from 'typeorm';
 import { AlbumDto } from './album.dto';
-import { ApiUnsupportedMediaTypeResponse } from '@nestjs/swagger';
+import { PhotoService } from 'src/photo/photo.service';
+import { Photo } from 'src/photo/photo.entity';
 
 @Injectable()
 export class AlbumService {
   constructor(
     @InjectRepository(Album)
     private albumRepository: Repository<Album>,
+    @Inject(forwardRef(() => PhotoService))
+    private photoService: PhotoService
   ) {}
 
   findAll(): Promise<Album[]> {
@@ -29,7 +32,30 @@ export class AlbumService {
     const trees = await manager.getTreeRepository(Album).findTrees();
     return trees;
   }
+
+  async findChildrens(id: string){
+    const parentAlbum: Album = await this.albumRepository.findOne(id);
+    const manager = getManager();
+    return await manager.getTreeRepository(Album).findDescendants(parentAlbum);
+  }
   
+  async findChildrensTree(id: string){
+    const parentAlbum: Album = await this.albumRepository.findOne(id);
+    const manager = getManager();
+    return await manager.getTreeRepository(Album).findDescendantsTree(parentAlbum);
+  }
+
+  async findParents(id: string){
+    const parentAlbum: Album = await this.albumRepository.findOne(id);
+    const manager = getManager();
+    return await manager.getTreeRepository(Album).findAncestors(parentAlbum);
+  }
+  
+  async findParentsTree(id: string){
+    const parentAlbum: Album = await this.albumRepository.findOne(id);
+    const manager = getManager();
+    return await manager.getTreeRepository(Album).findAncestorsTree(parentAlbum);
+  }
 
   async remove(id: string): Promise<void> {    
     await this.albumRepository.delete(id);
@@ -48,6 +74,13 @@ export class AlbumService {
         const albumParent = await this.albumRepository.findOne(albumDto.idParent);
         album.parent = albumParent;
     }
+    return this.albumRepository.save(album);
+  }
+
+  async setCover(idAlbum: string,idPhoto: string): Promise<Album> {
+    const album: Album = await this.albumRepository.findOne(idAlbum);
+    const coverPhoto: Photo = await this.photoService.findOne(idPhoto);
+    album.coverPhoto = coverPhoto;
     return this.albumRepository.save(album);
   }
 

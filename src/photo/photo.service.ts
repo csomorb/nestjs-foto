@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, forwardRef, Inject } from '@nestjs/common';
 import { Photo } from './photo.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -11,6 +11,7 @@ export class PhotoService {
     constructor(
         @InjectRepository(Photo)
         private photoRepository: Repository<Photo>,
+        @Inject(forwardRef(() => AlbumService))
         private albumService: AlbumService
     ) {}
 

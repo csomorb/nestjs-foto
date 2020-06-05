@@ -28,6 +28,36 @@ export class AlbumController {
         return this.albumService.findAlbumWithPhotos(id);
     }
 
+    @Get(':id/childrens')
+    findAlbumChildrens(@Param('id') id: string): Promise<Album[]> {
+        return this.albumService.findChildrens(id);
+    }
+
+    @Get(':id/childrens-tree')
+    findAlbumChildrensTree(@Param('id') id: string): Promise<Album> {
+        return this.albumService.findChildrensTree(id);
+    }
+
+    @Get(':id/parents')
+    findAlbumParents(@Param('id') id: string): Promise<Album[]> {
+        return this.albumService.findParents(id);
+    }
+
+    @Get(':id/parents-tree')
+    findAlbumParentsTree(@Param('id') id: string): Promise<Album> {
+        return this.albumService.findParentsTree(id);
+    }
+
+    @Post(':idAlbum/cover/:idPhoto')
+    createCover(@Param('idAlbum') idAlbum: string, @Param('idPhoto') idPhoto: string ): Promise<Album> {
+      return this.albumService.setCover(idAlbum,idPhoto);
+    }
+
+    @Put(':idAlbum/cover/:idPhoto')
+    updateCover(@Param('idAlbum') idAlbum: string, @Param('idPhoto') idPhoto: string ): Promise<Album> {
+      return this.albumService.setCover(idAlbum,idPhoto);
+    }
+
     @Put(':id')
     update(@Body() albumDto: AlbumDto, @Param('id') id): Promise<Album> {
      return this.albumService.update(id, albumDto);

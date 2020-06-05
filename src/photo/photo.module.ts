@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { PhotoService } from './photo.service';
 import { PhotoController } from './photo.controller';
 import { Photo } from './photo.entity';
@@ -8,7 +8,7 @@ import { AlbumModule } from 'src/album/album.module';
 @Module({
   imports: [
     TypeOrmModule.forFeature([Photo]),
-    AlbumModule
+    forwardRef(() => AlbumModule)
   ],
   providers: [PhotoService],
   controllers: [PhotoController],

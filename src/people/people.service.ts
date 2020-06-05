@@ -31,7 +31,7 @@ export class PeopleService {
       }
     
       async update(id: string, peopleDto: PeopleDto): Promise<People> {
-        let people: People = await this.peopleRepository.findOne(id);
+        const people: People = await this.peopleRepository.findOne(id);
         return await this.peopleRepository.save({...people, ...peopleDto});
       }
     
