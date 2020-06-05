@@ -32,7 +32,7 @@ export class PhotoService {
     }
 
     async update(id: string, photo: Photo): Promise<Photo> {
-        let photoSrc: Photo = await this.photoRepository.findOne(id);
+        const photoSrc: Photo = await this.photoRepository.findOne(id);
         return await this.photoRepository.save({...photoSrc, ...photo});
     }
     
