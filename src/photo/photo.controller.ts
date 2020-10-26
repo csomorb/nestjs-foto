@@ -49,14 +49,15 @@ export class PhotoController {
             const newPhoto = await that.photoService.create(photo,photoDto);
             console.log(newPhoto);
             const imagePath = '/upload/' + newPhoto.shootDate.getFullYear() + '/' + newPhoto.shootDate.getMonth() + '/' + newPhoto.shootDate.getDay();
-            await Mkdirp.sync(imagePath);
-            const srcOrig = imagePath + '/' + newPhoto.idPhoto + '-' + newPhoto.title;
+            await Mkdirp.sync(path.join(__dirname,imagePath));
+            const srcOrig = imagePath + '/' + newPhoto.idPhoto + '-' + file.originalname;
             const src150 = imagePath + '/' + newPhoto.idPhoto + '-150.webp';
-            image.toFile(path.join(__dirname,srcOrig));
-            image.resize(150, 150).webp().toFile(path.join(__dirname,src150));
+            console.log(__dirname);
+            image.toFile(path.join(__dirname, srcOrig));
+            image.resize(150, 150).webp().toFile(path.join(__dirname, src150));
             newPhoto.srcOrig = srcOrig;
             newPhoto.src150 = src150;
-            await that.photoService.update(''+newPhoto.idPhoto,newPhoto);
+            return await that.photoService.update(''+newPhoto.idPhoto,newPhoto);
         }
     }
 
