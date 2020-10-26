@@ -1,4 +1,4 @@
-import { Controller, Post, UseInterceptors, UploadedFile, UploadedFiles, Body, Delete, Param } from '@nestjs/common';
+import { Controller, Post, UseInterceptors, UploadedFile, UploadedFiles, Body, Delete, Param, Put, Get } from '@nestjs/common';
 import { PhotoService } from './photo.service';
 import { FileInterceptor, AnyFilesInterceptor } from '@nestjs/platform-express'
 import { Photo } from './photo.entity';
@@ -26,6 +26,7 @@ export class PhotoController {
             
             const photo = new Photo();
             photo.title = file.originalname;
+            photo.originalFileName = file.originalname;
             photo.height = metadata.height;
             photo.width = metadata.width;
             photo.weight = metadata.size;
@@ -48,17 +49,42 @@ export class PhotoController {
             }
             const newPhoto = await that.photoService.create(photo,photoDto);
             console.log(newPhoto);
-            const imagePath = '/upload/' + newPhoto.shootDate.getFullYear() + '/' + newPhoto.shootDate.getMonth() + '/' + newPhoto.shootDate.getDay();
+            const imagePath = '/upload/' + newPhoto.shootDate.getFullYear() + '/' + (newPhoto.shootDate.getMonth() + 1) + '/' + newPhoto.shootDate.getDate();
             await Mkdirp.sync(path.join(__dirname,imagePath));
             const srcOrig = imagePath + '/' + newPhoto.idPhoto + '-' + file.originalname;
             const src150 = imagePath + '/' + newPhoto.idPhoto + '-150.webp';
+            const src320 = imagePath + '/' + newPhoto.idPhoto + '-320.webp';
+            const src640 = imagePath + '/' + newPhoto.idPhoto + '-640.webp';
+            const src1280 = imagePath + '/' + newPhoto.idPhoto + '-1280.webp';
             console.log(__dirname);
             image.toFile(path.join(__dirname, srcOrig));
             image.resize(150, 150).webp().toFile(path.join(__dirname, src150));
             newPhoto.srcOrig = srcOrig;
             newPhoto.src150 = src150;
+            if (newPhoto.height > 320 || newPhoto.width > 320){
+                image.resize(320, 160, {fit: 'inside'}).webp().toFile(path.join(__dirname, src320));
+                newPhoto.src320 = src320;
+            }
+            if (newPhoto.height > 640 || newPhoto.width > 640){
+                image.resize(640, 320, {fit: 'inside'}).webp().toFile(path.join(__dirname, src640));
+                newPhoto.src640 = src640;
+            }
+            if (newPhoto.height > 1280 || newPhoto.width > 1280){
+                image.resize(1280, 720, {fit: 'inside'}).webp().toFile(path.join(__dirname, src1280));
+                newPhoto.src1280 = src1280;
+            }
             return await that.photoService.update(''+newPhoto.idPhoto,newPhoto);
         }
+    }
+
+    @Put(':id')
+    update(@Body() photoDto: PhotoDto, @Param('id') id): Promise<Photo> {
+     return this.photoService.update(id, photoDto);
+    }
+
+    @Get(':id')
+    findPhoto(@Param('id') id: string): Promise<Photo> {
+        return this.photoService.findOne(id);
     }
 
     @Delete(':id')

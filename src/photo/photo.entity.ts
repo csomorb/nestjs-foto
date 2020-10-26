@@ -16,7 +16,7 @@ export class Photo {
 
   @ApiProperty()
   @Column({nullable:true})
-  description: string
+  description: string;
 
   @Column("int")
   weight: number;
@@ -27,23 +27,38 @@ export class Photo {
   @Column("int")
   width: number;
 
+  @ApiProperty()
   @Column("datetime")
   shootDate: Date;
 
+  @ApiProperty()
   @Column({ type: "decimal", precision: 10, scale: 8, nullable: true })
   lat: number;
 
+  @ApiProperty()
   @Column({ type: "decimal", precision: 11, scale: 8, nullable: true })
   long: number;
 
   @Column({ type: "int", nullable: true })
   alti: number;
 
+  @Column()
+  originalFileName: string;
+
   @Column({ nullable: true })
   srcOrig: string;
 
   @Column({ nullable: true })
   src150: string;
+
+  @Column({ nullable: true })
+  src320: string;
+
+  @Column({ nullable: true })
+  src640: string;
+
+  @Column({ nullable: true })
+  src1280: string;
 
   @CreateDateColumn()
   createAt: Date;
