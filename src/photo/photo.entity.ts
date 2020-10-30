@@ -60,6 +60,9 @@ export class Photo {
   @Column({ nullable: true })
   src1280: string;
 
+  @Column({ nullable: true })
+  src1920: string;
+
   @CreateDateColumn()
   createAt: Date;
 

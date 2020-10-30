@@ -15,7 +15,12 @@ export class AlbumController {
     @Get()
     findAll(): Promise<Album[]>  {
     //return this.albumService.findAll();
-    return this.albumService.findAlbumTree();
+        return this.albumService.findAlbumTree();
+    }
+
+    @Get('roots')
+    findRoots(): Promise<Album[]>  {
+        return this.albumService.findRootAlbums();
     }
 
     @Get(':id')

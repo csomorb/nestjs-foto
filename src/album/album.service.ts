@@ -5,6 +5,7 @@ import { Repository, getManager } from 'typeorm';
 import { AlbumDto } from './album.dto';
 import { PhotoService } from 'src/photo/photo.service';
 import { Photo } from 'src/photo/photo.entity';
+import { In } from 'typeorm/find-options/operator/In';
 
 @Injectable()
 export class AlbumService {
@@ -31,6 +32,27 @@ export class AlbumService {
     const manager = getManager();
     const trees = await manager.getTreeRepository(Album).findTrees();
     return trees;
+  }
+
+  /**
+   * Retourne les albums racine ie sans parent
+   */
+  async findRootAlbums(){
+    const manager = getManager();
+    const roots = await (await manager.getTreeRepository(Album).findRoots());
+    const idList = roots.map(a => a.id);
+    const rootAlbumswithCover = await this.albumRepository.find({ where: { id: In(idList) }, relations: ["coverPhoto"] });
+    // récupérer la première photo si pas de cover
+    for(let i= 0; i < rootAlbumswithCover.length; i++)
+    {
+      if (!rootAlbumswithCover[i].coverPhoto){
+        const albumWithPhoto = await this.albumRepository.findOne(rootAlbumswithCover[i].id, {relations: ["photos" ]});
+        if (albumWithPhoto.photos && albumWithPhoto.photos.length){
+          rootAlbumswithCover[i].coverPhoto = albumWithPhoto.photos[0];
+        }
+      }
+    }
+    return rootAlbumswithCover;
   }
 
   async findChildrens(id: string){

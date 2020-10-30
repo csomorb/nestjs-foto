@@ -56,7 +56,9 @@ export class PhotoController {
             const src320 = imagePath + '/' + newPhoto.idPhoto + '-320.webp';
             const src640 = imagePath + '/' + newPhoto.idPhoto + '-640.webp';
             const src1280 = imagePath + '/' + newPhoto.idPhoto + '-1280.webp';
+            const src1920 = imagePath + '/' + newPhoto.idPhoto + '-1920.webp';
             console.log(__dirname);
+            console.log(imagePath);
             image.toFile(path.join(__dirname, srcOrig));
             image.resize(150, 150).webp().toFile(path.join(__dirname, src150));
             newPhoto.srcOrig = srcOrig;
@@ -72,6 +74,10 @@ export class PhotoController {
             if (newPhoto.height > 1280 || newPhoto.width > 1280){
                 image.resize(1280, 720, {fit: 'inside'}).webp().toFile(path.join(__dirname, src1280));
                 newPhoto.src1280 = src1280;
+            }
+            if (newPhoto.height > 1920 || newPhoto.width > 1920){
+                image.resize(1920, 1080, {fit: 'inside'}).webp().toFile(path.join(__dirname, src1920));
+                newPhoto.src1920 = src1920;
             }
             return await that.photoService.update(''+newPhoto.idPhoto,newPhoto);
         }

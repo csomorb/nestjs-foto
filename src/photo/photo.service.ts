@@ -43,8 +43,13 @@ export class PhotoService {
             const src320 = imagePath + '/' + photoSrc.idPhoto + '-320.webp';
             const src640 = imagePath + '/' + photoSrc.idPhoto + '-640.webp';
             const src1280 = imagePath + '/' + photoSrc.idPhoto + '-1280.webp';
+            const src1920 = imagePath + '/' + photoSrc.idPhoto + '-1920.webp';
             const srcOrig = imagePath + '/' + photoSrc.idPhoto + '-' + photoSrc.originalFileName;
             try {
+                if (photoSrc.src1920){
+                    fs.renameSync(path.join(__dirname,photoSrc.src1920),path.join(__dirname,src1920));
+                    photoSrc.src1920 = src1920;
+                }
                 if (photoSrc.src1280){
                     fs.renameSync(path.join(__dirname,photoSrc.src1280),path.join(__dirname,src1280));
                     photoSrc.src1280 = src1280;
@@ -73,6 +78,8 @@ export class PhotoService {
     async remove(id: string): Promise<void> {  
         const photoToDelete: Photo = await this.photoRepository.findOne(id);
         try {
+            if (photoToDelete.src1920)
+                fs.unlinkSync(path.join(__dirname,photoToDelete.src1920));
             if (photoToDelete.src1280)
                 fs.unlinkSync(path.join(__dirname,photoToDelete.src1280));
             if (photoToDelete.src640)
