@@ -80,6 +80,12 @@ export class AlbumController {
                     error: 'Supprimez d abord les sous albums',
                   }, HttpStatus.FAILED_DEPENDENCY);
             }
+            if (e.code === 'ALBUM_NOT_EMPTY'){
+                throw new HttpException({
+                    status: HttpStatus.FAILED_DEPENDENCY,
+                    error: e.message,
+                  }, HttpStatus.FAILED_DEPENDENCY);
+            }
             throw e;
         }
         return v;

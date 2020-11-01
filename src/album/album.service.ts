@@ -79,8 +79,11 @@ export class AlbumService {
     return await manager.getTreeRepository(Album).findAncestorsTree(parentAlbum);
   }
 
-  async remove(id: string): Promise<void> {    
-    await this.albumRepository.delete(id);
+  async remove(id: string):Promise<any> { 
+    const albumWithPhotos = await this.findAlbumWithPhotos(id);
+    if (albumWithPhotos.photos.length)
+      return Promise.reject({code : 'ALBUM_NOT_EMPTY', message : 'Album is not empty'});
+    return await this.albumRepository.delete(id);
   }
 
   async update(id: string, albumDto: AlbumDto): Promise<Album> {
