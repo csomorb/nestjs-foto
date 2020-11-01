@@ -111,7 +111,9 @@ export class AlbumService {
    */
   async deleteCoverPhotosFromAlbum(idCoverPhoto: string){
     const listAlbum: Album[] = await  this.albumRepository.find({ relations: ["coverPhoto"], where: { coverPhoto: idCoverPhoto } });
-    listAlbum.forEach( album => album.coverPhoto = null);
-    listAlbum.forEach( async album => await this.albumRepository.save(album));
+    for(let i = 0 ; i < listAlbum.length; i++){
+      listAlbum[i].coverPhoto = null;
+      await this.albumRepository.save(listAlbum[i]);
+    }
   }
 }
