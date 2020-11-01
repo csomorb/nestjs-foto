@@ -105,5 +105,13 @@ export class AlbumService {
     album.coverPhoto = coverPhoto;
     return this.albumRepository.save(album);
   }
-
+  
+   /**
+   * Supprime les photos de couverture pour une id de Photo donné
+   */
+  async deleteCoverPhotosFromAlbum(idCoverPhoto: string){
+    const listAlbum: Album[] = await  this.albumRepository.find({ relations: ["coverPhoto"], where: { coverPhoto: idCoverPhoto } });
+    listAlbum.forEach( album => album.coverPhoto = null);
+    listAlbum.forEach( async album => await this.albumRepository.save(album));
+  }
 }

@@ -70,13 +70,12 @@ export class PhotoService {
                 console.error(err)
             }
         }
-        
-
         return await this.photoRepository.save({...photoSrc, ...photoDto});
     }
     
     async remove(id: string): Promise<void> {  
         const photoToDelete: Photo = await this.photoRepository.findOne(id);
+        await this.albumService.deleteCoverPhotosFromAlbum(id);
         try {
             if (photoToDelete.src1920)
                 fs.unlinkSync(path.join(__dirname,photoToDelete.src1920));
