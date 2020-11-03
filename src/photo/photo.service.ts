@@ -36,7 +36,9 @@ export class PhotoService {
 
     async update(id: string, photoDto: PhotoDto): Promise<Photo> {
         const photoSrc: Photo = await this.photoRepository.findOne(id);
-        if (photoDto.shootDate && photoDto.shootDate !== photoSrc.shootDate){
+        if (photoDto.shootDate && (photoDto.shootDate.getFullYear() !== photoSrc.shootDate.getFullYear() ||
+        photoDto.shootDate.getMonth() !== photoSrc.shootDate.getMonth() || 
+        photoDto.shootDate.getDay() !== photoSrc.shootDate.getDay())){
             const imagePath = '/upload/' + photoDto.shootDate.getFullYear() + '/' + (photoDto.shootDate.getMonth() + 1) + '/' + photoDto.shootDate.getDate();
             await Mkdirp.sync(path.join(__dirname,imagePath));
             const src150 = imagePath + '/' + photoSrc.idPhoto + '-150.webp';
