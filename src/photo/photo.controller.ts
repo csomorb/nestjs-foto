@@ -49,34 +49,35 @@ export class PhotoController {
             }
             const newPhoto = await that.photoService.create(photo,photoDto);
             console.log(newPhoto);
-            const imagePath = '/upload/' + newPhoto.shootDate.getFullYear() + '/' + (newPhoto.shootDate.getMonth() + 1) + '/' + newPhoto.shootDate.getDate();
-            await Mkdirp.sync(path.join(__dirname,imagePath));
+            const upFolder = path.join(__dirname, '..', '..', 'files'); 
+            const imagePath = '/' + newPhoto.shootDate.getFullYear() + '/' + (newPhoto.shootDate.getMonth() + 1) + '/' + newPhoto.shootDate.getDate();
+            await Mkdirp.sync(path.join(upFolder,imagePath));
             const srcOrig = imagePath + '/' + newPhoto.idPhoto + '-' + file.originalname;
             const src150 = imagePath + '/' + newPhoto.idPhoto + '-150.webp';
             const src320 = imagePath + '/' + newPhoto.idPhoto + '-320.webp';
             const src640 = imagePath + '/' + newPhoto.idPhoto + '-640.webp';
             const src1280 = imagePath + '/' + newPhoto.idPhoto + '-1280.webp';
             const src1920 = imagePath + '/' + newPhoto.idPhoto + '-1920.webp';
-            console.log(__dirname);
-            console.log(imagePath);
-            image.toFile(path.join(__dirname, srcOrig));
-            image.resize(150, 150).webp().toFile(path.join(__dirname, src150));
+            console.log(upFolder);
+            console.log(path.join(upFolder, srcOrig));
+            await image.toFile(path.join(upFolder, srcOrig));
+            await image.resize(150, 150).webp().toFile(path.join(upFolder, src150));
             newPhoto.srcOrig = srcOrig;
             newPhoto.src150 = src150;
             if (newPhoto.height > 320 || newPhoto.width > 320){
-                image.resize(320, 160, {fit: 'inside'}).webp().toFile(path.join(__dirname, src320));
+                await image.resize(320, 160, {fit: 'inside'}).webp().toFile(path.join(upFolder, src320));
                 newPhoto.src320 = src320;
             }
             if (newPhoto.height > 640 || newPhoto.width > 640){
-                image.resize(640, 320, {fit: 'inside'}).webp().toFile(path.join(__dirname, src640));
+                await image.resize(640, 320, {fit: 'inside'}).webp().toFile(path.join(upFolder, src640));
                 newPhoto.src640 = src640;
             }
             if (newPhoto.height > 1280 || newPhoto.width > 1280){
-                image.resize(1280, 720, {fit: 'inside'}).webp().toFile(path.join(__dirname, src1280));
+                await image.resize(1280, 720, {fit: 'inside'}).webp().toFile(path.join(upFolder, src1280));
                 newPhoto.src1280 = src1280;
             }
             if (newPhoto.height > 1920 || newPhoto.width > 1920){
-                image.resize(1920, 1080, {fit: 'inside'}).webp().toFile(path.join(__dirname, src1920));
+                await image.resize(1920, 1080, {fit: 'inside'}).webp().toFile(path.join(upFolder, src1920));
                 newPhoto.src1920 = src1920;
             }
             return await that.photoService.update(''+newPhoto.idPhoto,newPhoto);

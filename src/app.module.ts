@@ -11,6 +11,8 @@ import { Tag } from './tag/tag.entity';
 import { People } from './people/people.entity';
 import { MulterModule } from '@nestjs/platform-express';
 import { PhotoModule } from './photo/photo.module';
+import { ServeStaticModule } from '@nestjs/serve-static';
+import { join } from 'path';
 
 @Module({
   imports: [
@@ -29,12 +31,15 @@ import { PhotoModule } from './photo/photo.module';
     MulterModule.register({
       dest: './fotos',
     }),
+    ServeStaticModule.forRoot({
+      rootPath: join(__dirname, '..', 'files'),
+    }),
     AlbumModule,
     PhotoModule,
     TagModule,
     PeopleModule,
     ],
-  controllers: [AppController],
-  providers: [AppService],
+    controllers: [AppController],
+    providers: [AppService],
 })
 export class AppModule {}

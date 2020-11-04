@@ -39,7 +39,7 @@ export class PhotoService {
         if (photoDto.shootDate && (photoDto.shootDate.getFullYear() !== photoSrc.shootDate.getFullYear() ||
         photoDto.shootDate.getMonth() !== photoSrc.shootDate.getMonth() || 
         photoDto.shootDate.getDay() !== photoSrc.shootDate.getDay())){
-            const imagePath = '/upload/' + photoDto.shootDate.getFullYear() + '/' + (photoDto.shootDate.getMonth() + 1) + '/' + photoDto.shootDate.getDate();
+            const imagePath = '/' + photoDto.shootDate.getFullYear() + '/' + (photoDto.shootDate.getMonth() + 1) + '/' + photoDto.shootDate.getDate();
             await Mkdirp.sync(path.join(__dirname,imagePath));
             const src150 = imagePath + '/' + photoSrc.idPhoto + '-150.webp';
             const src320 = imagePath + '/' + photoSrc.idPhoto + '-320.webp';
@@ -47,26 +47,27 @@ export class PhotoService {
             const src1280 = imagePath + '/' + photoSrc.idPhoto + '-1280.webp';
             const src1920 = imagePath + '/' + photoSrc.idPhoto + '-1920.webp';
             const srcOrig = imagePath + '/' + photoSrc.idPhoto + '-' + photoSrc.originalFileName;
+            const upFolder = path.join(__dirname, '..', '..', 'files'); 
             try {
                 if (photoSrc.src1920){
-                    fs.renameSync(path.join(__dirname,photoSrc.src1920),path.join(__dirname,src1920));
+                    fs.renameSync(path.join(upFolder,photoSrc.src1920),path.join(upFolder,src1920));
                     photoSrc.src1920 = src1920;
                 }
                 if (photoSrc.src1280){
-                    fs.renameSync(path.join(__dirname,photoSrc.src1280),path.join(__dirname,src1280));
+                    fs.renameSync(path.join(upFolder,photoSrc.src1280),path.join(upFolder,src1280));
                     photoSrc.src1280 = src1280;
                 }
                 if (photoSrc.src640){
-                    fs.renameSync(path.join(__dirname,photoSrc.src640),path.join(__dirname,src640));
+                    fs.renameSync(path.join(upFolder,photoSrc.src640),path.join(upFolder,src640));
                     photoSrc.src640 = src640;
                 }
                 if (photoSrc.src320){
-                    fs.renameSync(path.join(__dirname,photoSrc.src320),path.join(__dirname,src320));
+                    fs.renameSync(path.join(upFolder,photoSrc.src320),path.join(upFolder,src320));
                     photoSrc.src320 = src320;
                 }
-                fs.renameSync(path.join(__dirname,photoSrc.src150),path.join(__dirname,src150));
+                fs.renameSync(path.join(upFolder,photoSrc.src150),path.join(upFolder,src150));
                 photoSrc.src150 = src150;
-                fs.renameSync(path.join(__dirname,photoSrc.srcOrig),path.join(__dirname,srcOrig));
+                fs.renameSync(path.join(upFolder,photoSrc.srcOrig),path.join(upFolder,srcOrig));
                 photoSrc.srcOrig = srcOrig;             
             } catch(err) {
                 console.error(err)
@@ -78,17 +79,18 @@ export class PhotoService {
     async remove(id: string): Promise<void> {  
         const photoToDelete: Photo = await this.photoRepository.findOne(id);
         await this.albumService.deleteCoverPhotosFromAlbum(id);
+        const upFolder = path.join(__dirname, '..', '..', 'files'); 
         try {
             if (photoToDelete.src1920)
-                fs.unlinkSync(path.join(__dirname,photoToDelete.src1920));
+                fs.unlinkSync(path.join(upFolder,photoToDelete.src1920));
             if (photoToDelete.src1280)
-                fs.unlinkSync(path.join(__dirname,photoToDelete.src1280));
+                fs.unlinkSync(path.join(upFolder,photoToDelete.src1280));
             if (photoToDelete.src640)
-                fs.unlinkSync(path.join(__dirname,photoToDelete.src640));
+                fs.unlinkSync(path.join(upFolder,photoToDelete.src640));
             if (photoToDelete.src320)
-                fs.unlinkSync(path.join(__dirname,photoToDelete.src320));
-            fs.unlinkSync(path.join(__dirname,photoToDelete.src150));
-            fs.unlinkSync(path.join(__dirname,photoToDelete.srcOrig));            
+                fs.unlinkSync(path.join(upFolder,photoToDelete.src320));
+            fs.unlinkSync(path.join(upFolder,photoToDelete.src150));
+            fs.unlinkSync(path.join(upFolder,photoToDelete.srcOrig));            
         } catch(err) {
             console.error(err);
         }

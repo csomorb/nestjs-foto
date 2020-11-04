@@ -10,7 +10,8 @@ async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
   app.useGlobalPipes(new ValidationPipe({transform: true}));
   app.enableCors();
-  app.use('/upload', express.static(path.join(__dirname + '/upload')));
+  // app.use('/upload', express.static(path.join(__dirname + '/upload')));
+
   
   const options = new DocumentBuilder()
     .setTitle('Foto Api')
