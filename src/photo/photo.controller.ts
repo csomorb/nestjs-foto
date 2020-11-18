@@ -7,11 +7,12 @@ import {ExifParserFactory} from 'ts-exif-parser';
 import * as Mkdirp from  'mkdirp';
 import { PhotoDto } from './photo.dto';
 import path = require('path');
+import { FaceService } from 'src/face/face.service';
 
 
 @Controller('photos')
 export class PhotoController {
-    constructor(private photoService: PhotoService) {}
+    constructor(private photoService: PhotoService,private faceService: FaceService) {}
 
     @Post('upload')
     @UseInterceptors(AnyFilesInterceptor())
@@ -80,6 +81,8 @@ export class PhotoController {
                 await image.resize(1920, 1080, {fit: 'inside'}).webp().toFile(path.join(upFolder, src1920));
                 newPhoto.src1920 = src1920;
             }
+            
+            newPhoto.facetag = await this.faceService.detectFaces(srcOrig);
             return await that.photoService.update(''+newPhoto.idPhoto,newPhoto);
         }
     }

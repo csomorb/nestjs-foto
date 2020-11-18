@@ -1,6 +1,8 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, ManyToMany, OneToOne, JoinColumn} from "typeorm";
+import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, OneToOne, JoinColumn} from "typeorm";
 import { ApiProperty } from "@nestjs/swagger";
 import { Photo } from "src/photo/photo.entity";
+import { OneToMany } from "typeorm/decorator/relations/OneToMany";
+import { PeopleToPhoto } from "./peopleToPhoto.entity";
 
 @Entity()
 export class People {
@@ -26,11 +28,12 @@ export class People {
   @UpdateDateColumn()
   updatedAt: Date;
   
-  @ManyToMany(type => Photo, photo => photo.peoples)
-  photos: Photo[];
+  @OneToMany(() => PeopleToPhoto, peopleToPhoto => peopleToPhoto.photo)
+  public peopleToPhoto!: PeopleToPhoto[];
 
   @OneToOne(type => Photo)
   @JoinColumn()
   profilPhoto: Photo;
 
 }
+

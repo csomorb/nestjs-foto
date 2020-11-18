@@ -104,8 +104,13 @@ export class AlbumService {
 
   async setCover(idAlbum: string,idPhoto: string): Promise<Album> {
     const album: Album = await this.albumRepository.findOne(idAlbum);
-    const coverPhoto: Photo = await this.photoService.findOne(idPhoto);
-    album.coverPhoto = coverPhoto;
+    if (idPhoto === '0'){
+      album.coverPhoto = null;
+    }
+    else{
+      const coverPhoto: Photo = await this.photoService.findOne(idPhoto);
+      album.coverPhoto = coverPhoto;
+    }
     return this.albumRepository.save(album);
   }
   

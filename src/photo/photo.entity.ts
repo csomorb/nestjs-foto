@@ -2,7 +2,8 @@ import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateCol
 import { ApiProperty } from "@nestjs/swagger";
 import { Album } from "src/album/album.entity";
 import { Tag } from "src/tag/tag.entity";
-import { People } from "src/people/people.entity";
+import { OneToMany } from "typeorm/decorator/relations/OneToMany";
+import { PeopleToPhoto } from "src/people/peopleToPhoto.entity";
 
 @Entity()
 export class Photo {
@@ -63,6 +64,9 @@ export class Photo {
   @Column({ nullable: true })
   src1920: string;
 
+  @Column({ type: "json", nullable: true })
+  facetag: any;
+
   @CreateDateColumn()
   createAt: Date;
 
@@ -77,8 +81,7 @@ export class Photo {
   @JoinTable()
   tags: Tag[];
 
-  @ManyToMany(type => People, people => people.photos)
-  @JoinTable()
-  peoples: People[];
+  @OneToMany(() => PeopleToPhoto, peopleToPhoto => peopleToPhoto.people)
+  public peopleToPhoto!: PeopleToPhoto[];
 
 }

@@ -13,6 +13,8 @@ import { MulterModule } from '@nestjs/platform-express';
 import { PhotoModule } from './photo/photo.module';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
+import { PeopleToPhoto } from './people/peopleToPhoto.entity';
+import { FaceService } from './face/face.service';
 
 @Module({
   imports: [
@@ -23,7 +25,7 @@ import { join } from 'path';
       username: 'dev',
       password: 'devplatform',
       database: 'foto',
-      entities: [Album,Photo,Tag,People],
+      entities: [Album,Photo,Tag,People,PeopleToPhoto],
       synchronize: true,
     //  logging: true,
     //  debug: true,
@@ -40,6 +42,6 @@ import { join } from 'path';
     PeopleModule,
     ],
     controllers: [AppController],
-    providers: [AppService],
+    providers: [AppService, FaceService],
 })
 export class AppModule {}

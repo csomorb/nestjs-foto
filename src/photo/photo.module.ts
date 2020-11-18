@@ -4,13 +4,14 @@ import { PhotoController } from './photo.controller';
 import { Photo } from './photo.entity';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AlbumModule } from 'src/album/album.module';
+import { FaceService } from 'src/face/face.service';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([Photo]),
     forwardRef(() => AlbumModule)
   ],
-  providers: [PhotoService],
+  providers: [PhotoService,FaceService],
   controllers: [PhotoController],
   exports: [PhotoService]
 })
