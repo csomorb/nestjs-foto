@@ -9,7 +9,7 @@ export class Tag {
   idTag: number;
 
   @ApiProperty()
-  @Column() 
+  @Column({unique: true}) 
   title: string;
 
   @ApiProperty()

@@ -73,15 +73,21 @@ export class Photo {
   @UpdateDateColumn()
   updatedAt: Date;
   
-  @ManyToMany(type => Album, album => album.photos)
+  @ManyToMany(type => Album, album => album.photos, {
+    eager: true
+  })
   @JoinTable()
   albums: Album[];
 
-  @ManyToMany(type => Tag, tag => tag.photos)
+  @ManyToMany(type => Tag, tag => tag.photos, {
+    eager: true
+  })
   @JoinTable()
   tags: Tag[];
 
-  @OneToMany(() => PeopleToPhoto, peopleToPhoto => peopleToPhoto.people)
-  public peopleToPhoto!: PeopleToPhoto[];
+  @OneToMany(() => PeopleToPhoto, peopleToPhoto => peopleToPhoto.photo, {
+    eager: true
+  })
+  public peopleToPhoto: PeopleToPhoto[];
 
 }

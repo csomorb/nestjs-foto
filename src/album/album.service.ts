@@ -41,14 +41,13 @@ export class AlbumService {
     const manager = getManager();
     const roots = await (await manager.getTreeRepository(Album).findRoots());
     const idList = roots.map(a => a.id);
-    const rootAlbumswithCover = await this.albumRepository.find({ where: { id: In(idList) }, relations: ["coverPhoto"] });
+    const rootAlbumswithCover = await this.albumRepository.find({ where: { id: In(idList) }, relations: ["coverPhoto","photos"]});
     // récupérer la première photo si pas de cover
     for(let i= 0; i < rootAlbumswithCover.length; i++)
     {
       if (!rootAlbumswithCover[i].coverPhoto){
-        const albumWithPhoto = await this.albumRepository.findOne(rootAlbumswithCover[i].id, {relations: ["photos" ]});
-        if (albumWithPhoto.photos && albumWithPhoto.photos.length){
-          rootAlbumswithCover[i].coverPhoto = albumWithPhoto.photos[0];
+        if (rootAlbumswithCover[i].photos && rootAlbumswithCover[i].photos.length){
+          rootAlbumswithCover[i].coverPhoto = rootAlbumswithCover[i].photos[0];
         }
       }
     }

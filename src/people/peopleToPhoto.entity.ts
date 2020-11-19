@@ -16,29 +16,29 @@ export class PeopleToPhoto {
     public idPeople!: number;
 
     @Column({type: "float", nullable:true})
-    public avg!: number;
+    public avg: number;
 
     @Column({type: "float", nullable:true})
-    public x!: number;
+    public x: number;
 
     @Column({type: "float", nullable:true})
-    public y!: number;
+    public y: number;
 
     @Column({type: "float", nullable:true})
-    public h!: number;
+    public h: number;
 
     @Column({type: "float", nullable:true})
-    public w!: number;
+    public w: number;
 
     @Column({type: "smallint", nullable:true})
-    public d!: number;
+    public d: number;
 
     @Column({ type: "json", nullable: true })
-    public similarity!: string;
+    public similarity: string;
 
     @ManyToOne(() => Photo, photo => photo.peopleToPhoto)
-    public photo!: Photo;
+    public photo: Photo;
 
     @ManyToOne(() => People, people => people.peopleToPhoto)
-    public people!: People;
+    public people: People;
 }

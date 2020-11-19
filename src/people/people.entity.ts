@@ -8,11 +8,11 @@ import { PeopleToPhoto } from "./peopleToPhoto.entity";
 export class People {
 
   @PrimaryGeneratedColumn() 
-  idPeople: number;
+  id: number;
 
   @ApiProperty()
-  @Column() 
-  name: string;
+  @Column({unique: true}) 
+  title: string;
 
   @ApiProperty()
   @Column({nullable:true})
@@ -28,12 +28,12 @@ export class People {
   @UpdateDateColumn()
   updatedAt: Date;
   
-  @OneToMany(() => PeopleToPhoto, peopleToPhoto => peopleToPhoto.photo)
-  public peopleToPhoto!: PeopleToPhoto[];
+  @OneToMany(() => PeopleToPhoto, peopleToPhoto => peopleToPhoto.people)
+  public peopleToPhoto: PeopleToPhoto[];
 
   @OneToOne(type => Photo)
   @JoinColumn()
-  profilPhoto: Photo;
+  coverPhoto: Photo;
 
 }
 
