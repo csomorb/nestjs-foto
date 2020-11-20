@@ -34,6 +34,10 @@ export class PhotoService {
         return this.photoRepository.findOne(id);
     }
 
+    save(photo: Photo){
+        return this.photoRepository.save(photo);
+    }
+
     async update(id: string, photoDto: PhotoDto): Promise<Photo> {
         const photoSrc: Photo = await this.photoRepository.findOne(id);
         if (photoDto.shootDate && (photoDto.shootDate.getFullYear() !== photoSrc.shootDate.getFullYear() ||

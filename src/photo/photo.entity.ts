@@ -3,7 +3,7 @@ import { ApiProperty } from "@nestjs/swagger";
 import { Album } from "src/album/album.entity";
 import { Tag } from "src/tag/tag.entity";
 import { OneToMany } from "typeorm/decorator/relations/OneToMany";
-import { PeopleToPhoto } from "src/people/peopleToPhoto.entity";
+import { FacesTaged } from "src/people/facesTaged.entity";
 
 @Entity()
 export class Photo {
@@ -65,7 +65,7 @@ export class Photo {
   src1920: string;
 
   @Column({ type: "json", nullable: true })
-  facetag: any;
+  facesToTag: any;
 
   @CreateDateColumn()
   createAt: Date;
@@ -85,9 +85,9 @@ export class Photo {
   @JoinTable()
   tags: Tag[];
 
-  @OneToMany(() => PeopleToPhoto, peopleToPhoto => peopleToPhoto.photo, {
+  @OneToMany(() => FacesTaged, facesTaged => facesTaged.photo, {
     eager: true
   })
-  public peopleToPhoto: PeopleToPhoto[];
+  public facesTaged: FacesTaged[];
 
 }

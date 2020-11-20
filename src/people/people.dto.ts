@@ -19,6 +19,8 @@ export class PeopleDto {
 export class PeopleFaceDto {
     @ApiProperty({description: 'Id of the Photo to facetag'})
     readonly idPhoto: number;
+    @ApiProperty({description: 'Id of the People to facetag'})
+    readonly idPeople?: number;
     @ApiProperty({description: 'Relative position x of the face'})
     readonly x: number;
     @ApiProperty({description: 'Relative position y of the face'})

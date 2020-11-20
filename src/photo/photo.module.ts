@@ -11,7 +11,7 @@ import { FaceService } from 'src/face/face.service';
     TypeOrmModule.forFeature([Photo]),
     forwardRef(() => AlbumModule)
   ],
-  providers: [PhotoService,FaceService],
+  providers: [PhotoService],
   controllers: [PhotoController],
   exports: [PhotoService]
 })

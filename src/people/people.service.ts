@@ -5,16 +5,21 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { PeopleDto, PeopleFaceDto } from './people.dto';
 import { Photo } from 'src/photo/photo.entity';
 import { PhotoService } from 'src/photo/photo.service';
-import { PeopleToPhoto } from './peopleToPhoto.entity';
+import { FacesTaged } from './facesTaged.entity';
+import * as Sharp from 'sharp';
+import path = require('path');
+import { FaceService } from 'src/face/face.service';
+
 
 @Injectable()
 export class PeopleService {
     constructor(
         @InjectRepository(People)
         private peopleRepository: Repository<People>,
-        @InjectRepository(PeopleToPhoto)
-        private peopleToPhotoRepository: Repository<PeopleToPhoto>,
-        private photoService: PhotoService
+        @InjectRepository(FacesTaged)
+        private facesTagedRepository: Repository<FacesTaged>,
+        private photoService: PhotoService,
+        private faceServcie: FaceService
       ) {}
     
       findAll(): Promise<People[]> {
@@ -26,7 +31,7 @@ export class PeopleService {
       }
 
       findAllPeopleWithPhotos(): Promise<People[]> {
-        return this.peopleRepository.find({relations: ["peopleToPhoto","coverPhoto"]});
+        return this.peopleRepository.find({relations: ["facesTaged","coverPhoto"]});
         return this.peopleRepository.createQueryBuilder("people")
      //   .leftJoinAndSelect("people.coverPhoto", "coverPhoto")
         .leftJoin('people.peopleToPhoto', 'scr', 'scr.idPeople = people.id')
@@ -36,7 +41,7 @@ export class PeopleService {
       }
     
       findPeopleWithPhotos(id: string): Promise<People> {
-        return this.peopleRepository.findOne(id,{ relations: ["peopleToPhoto","coverPhoto"] });
+        return this.peopleRepository.findOne(id,{ relations: ["facesTaged","coverPhoto"] });
         return this.peopleRepository.createQueryBuilder("people")
      //   .leftJoinAndSelect("people.coverPhoto", "coverPhoto")
         .leftJoin('people_to_photo', 'scr', 'scr.idPeople = people.id')
@@ -58,8 +63,9 @@ export class PeopleService {
 
       async createFaceTag(id: string,peopleFaceDto: PeopleFaceDto){
         const people = await this.peopleRepository.findOne(id);
-        const photo = await this.photoService.findOne(''+peopleFaceDto.idPhoto);
-        const faceTag = new PeopleToPhoto();
+        const photo: Photo = await this.photoService.findOne(''+peopleFaceDto.idPhoto);
+        photo.facesToTag.splice(photo.facesToTag.findIndex(f => f.x === peopleFaceDto.x && f.y === peopleFaceDto.y),1);
+        let faceTag = new FacesTaged();
         faceTag.people = people;
         faceTag.photo = photo;
         faceTag.h = peopleFaceDto.h;
@@ -68,7 +74,39 @@ export class PeopleService {
         faceTag.y = peopleFaceDto.y;
         faceTag.idPeople = people.id;
         faceTag.idPhoto = photo.idPhoto;
-        return this.peopleToPhotoRepository.save(faceTag);
+        await this.photoService.save(photo);
+        const upFolder = path.join(__dirname, '..', '..', 'files'); 
+        faceTag = await this.facesTagedRepository.save(faceTag);
+        const image = Sharp(path.join(upFolder,photo.srcOrig));
+        await image.extract({ left: (peopleFaceDto.x*photo.width), top: (peopleFaceDto.y*photo.height), width: (peopleFaceDto.w*photo.width), height: (peopleFaceDto.h*photo.height) })
+        // .resize(200, 300, {
+        //   fit: 'contain',
+        // })
+        .png()
+        .toFile(path.join(upFolder,'facedescriptor','' + faceTag.facesTagedId + '.png'))
+        .then(info => { console.log(info) })
+        .catch(err => { console.log(err) });
+        console.log("Image decoupé, construction du descripteur");
+        const descriptor = await this.faceServcie.createDescriptor(people.id,faceTag.facesTagedId);
+        faceTag.descriptor = descriptor;
+        return await this.facesTagedRepository.save(faceTag);
+      }
+
+      async updateFaceTag(idFaceTaged: string,idPeople: string){
+        const people = await this.peopleRepository.findOne(idPeople);
+        const faceTag = await this.facesTagedRepository.findOne(idFaceTaged);
+        faceTag.people = people;
+        return this.facesTagedRepository.save(faceTag);
+        // TODO: récupérer l'id extraire l'image et l'enregistrer
+      }
+
+      async deleteFaceTag(idFaceTaged: string){
+        const faceTag = await this.facesTagedRepository.findOne(idFaceTaged);
+        const faceToTag = {x:faceTag.x, y:faceTag.y, w:faceTag.w,h:faceTag.h};
+        const photo = faceTag.photo;
+        photo.facesToTag.push(faceToTag);
+        await this.photoService.save(photo);
+        return this.facesTagedRepository.delete(idFaceTaged);
         // TODO: récupérer l'id extraire l'image et l'enregistrer
       }
     

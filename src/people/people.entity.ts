@@ -2,7 +2,7 @@ import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateCol
 import { ApiProperty } from "@nestjs/swagger";
 import { Photo } from "src/photo/photo.entity";
 import { OneToMany } from "typeorm/decorator/relations/OneToMany";
-import { PeopleToPhoto } from "./peopleToPhoto.entity";
+import { FacesTaged } from "./facesTaged.entity";
 
 @Entity()
 export class People {
@@ -28,8 +28,8 @@ export class People {
   @UpdateDateColumn()
   updatedAt: Date;
   
-  @OneToMany(() => PeopleToPhoto, peopleToPhoto => peopleToPhoto.people)
-  public peopleToPhoto: PeopleToPhoto[];
+  @OneToMany(() => FacesTaged, facesTaged => facesTaged.people)
+  public facesTaged: FacesTaged[];
 
   @OneToOne(type => Photo)
   @JoinColumn()

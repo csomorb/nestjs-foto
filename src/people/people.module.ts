@@ -4,11 +4,12 @@ import { PeopleService } from './people.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { People } from './people.entity';
 import { PhotoModule } from 'src/photo/photo.module';
-import { PeopleToPhoto } from './peopleToPhoto.entity';
+import { FacesTaged } from './facesTaged.entity';
+import { FaceService } from 'src/face/face.service';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([PeopleToPhoto]),
+    TypeOrmModule.forFeature([FacesTaged]),
     TypeOrmModule.forFeature([People]),
     PhotoModule
   ],

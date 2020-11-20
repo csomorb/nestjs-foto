@@ -1,6 +1,6 @@
-import { Controller, Post, UseInterceptors, UploadedFile, UploadedFiles, Body, Delete, Param, Put, Get } from '@nestjs/common';
+import { Controller, Post, UseInterceptors, UploadedFiles, Body, Delete, Param, Put, Get } from '@nestjs/common';
 import { PhotoService } from './photo.service';
-import { FileInterceptor, AnyFilesInterceptor } from '@nestjs/platform-express'
+import { AnyFilesInterceptor } from '@nestjs/platform-express'
 import { Photo } from './photo.entity';
 import * as Sharp from 'sharp';
 import {ExifParserFactory} from 'ts-exif-parser';
@@ -17,7 +17,7 @@ export class PhotoController {
     @Post('upload')
     @UseInterceptors(AnyFilesInterceptor())
     async uploadFile(@UploadedFiles() files,@Body() photoDto: PhotoDto) {
-        const that = this;
+        // const that = this;
 
         for (const file of files) {
             console.log(file);
@@ -48,7 +48,7 @@ export class PhotoController {
             if (!photo.shootDate){
                 photo.shootDate = new Date();
             }
-            const newPhoto = await that.photoService.create(photo,photoDto);
+            const newPhoto = await this.photoService.create(photo,photoDto);
             console.log(newPhoto);
             const upFolder = path.join(__dirname, '..', '..', 'files'); 
             const imagePath = '/' + newPhoto.shootDate.getFullYear() + '/' + (newPhoto.shootDate.getMonth() + 1) + '/' + newPhoto.shootDate.getDate();
@@ -82,8 +82,8 @@ export class PhotoController {
                 newPhoto.src1920 = src1920;
             }
             
-            newPhoto.facetag = await this.faceService.detectFaces(srcOrig);
-            return await that.photoService.update(''+newPhoto.idPhoto,newPhoto);
+            newPhoto.facesToTag = await this.faceService.detectFaces(srcOrig);
+            return await this.photoService.update(''+newPhoto.idPhoto,newPhoto);
         }
     }
 
