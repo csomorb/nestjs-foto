@@ -6,6 +6,17 @@ import '@tensorflow/tfjs-node';
 // implements nodejs wrappers for HTMLCanvasElement, HTMLImageElement, ImageData
 import * as canvas from 'canvas';
 import * as faceapi from 'face-api.js';
+import * as Sharp from 'sharp';
+import path = require('path');
+import { InjectRepository } from '@nestjs/typeorm';
+import { Face } from './face.entity';
+import { Repository } from 'typeorm';
+import { FaceDto } from './face.dto';
+import { PhotoService } from 'src/photo/photo.service';
+import { PeopleService } from 'src/people/people.service';
+import { Photo } from 'src/photo/photo.entity';
+import { People } from 'src/people/people.entity';
+import fs = require('fs');
 
 
 // patch nodejs environment, we need to provide an implementation of
@@ -16,7 +27,12 @@ const { Canvas, Image, ImageData } = canvas;
 
 @Injectable()
 export class FaceService {
-    constructor(){
+    constructor(
+        @InjectRepository(Face)
+        private facesTagedRepository: Repository<Face>,
+        private photoService: PhotoService,
+        private peopleService: PeopleService,
+        ){
         
         faceapi.env.monkeyPatch({ Canvas, Image, ImageData } as any);
         faceapi.nets.ssdMobilenetv1.loadFromDisk('./src/models').then( () => { console.log("ssdLoaded");});
@@ -41,14 +57,14 @@ export class FaceService {
     }
 
 
-    async createDescriptor(idPeople,idFaceTaged){
-        const referenceImage:any = await canvas.loadImage('files/facedescriptor/'+idFaceTaged+'.png');
+    async createDescriptor(idPeople,idfaceed){
+        const referenceImage:any = await canvas.loadImage('files/facedescriptor/'+idfaceed+'.png');
         const descriptor = await faceapi
         .detectSingleFace(referenceImage)
         .withFaceLandmarks()
         .withFaceDescriptor();
         if (!descriptor) {
-            console.log(" Face not found in create descriptor! idFaceTaged:" + idFaceTaged + " idPeople: " +idPeople);
+            console.log(" Face not found in create descriptor! idfaceed:" + idfaceed + " idPeople: " +idPeople);
             return;
         }
         console.log("descriptor created: ");
@@ -91,6 +107,63 @@ export class FaceService {
         });
 
     }
+
+    async createface(faceDto: FaceDto){
+        const people: People = await this.peopleService.findOne(''+faceDto.idPeople);
+        const photo: Photo = await this.photoService.findOne(''+faceDto.idPhoto);
+        photo.facesToTag.splice(photo.facesToTag.findIndex(f => f.x === faceDto.x && f.y === faceDto.y),1);
+        let face = new Face();
+        face.people = people;
+        face.photo = photo;
+        face.h = faceDto.h;
+        face.w = faceDto.w;
+        face.x = faceDto.x;
+        face.y = faceDto.y;
+        face.idPeople = people.id;
+        face.idPhoto = photo.idPhoto;
+        await this.photoService.save(photo);
+        const upFolder = path.join(__dirname, '..', '..', 'files'); 
+        face = await this.facesTagedRepository.save(face);
+        const image = Sharp(path.join(upFolder,photo.srcOrig));
+        const left = parseInt('' + (faceDto.x * photo.width));
+        const top = parseInt('' + (faceDto.y * photo.height));
+        const width = parseInt('' + (faceDto.w * photo.width));
+        const height = parseInt('' + (faceDto.h * photo.height));
+        await image.extract({ left: left, top: top, width: width, height: height})
+        // .resize(200, 300, {
+        //   fit: 'contain',
+        // })
+        .png()
+        .toFile(path.join(upFolder,'facedescriptor','' + face.facesId + '.png'))
+        .then(info => { console.log(info) })
+        .catch(err => { console.log(err) });
+        console.log("Image decoupé, construction du descripteur");
+        const descriptor = await this.createDescriptor(people.id,face.facesId);
+        face.descriptor = descriptor;
+        return await this.facesTagedRepository.save(face);
+      }
+
+      async updateface(idFace: string,idPeople: string){
+        const people = await this.peopleService.findOne(idPeople);
+        const face = await this.facesTagedRepository.findOne(idFace);
+        face.people = people;
+        return this.facesTagedRepository.save(face);
+      }
+
+      async deleteface(idFace: string){
+        const face = await this.facesTagedRepository.findOne(idFace);
+        const faceToTag = {x:face.x, y:face.y, w:face.w,h:face.h};
+        const photo = await this.photoService.findOne(''+face.idPhoto);
+        photo.facesToTag.push(faceToTag);
+        await this.photoService.save(photo);
+        const upFolder = path.join(__dirname, '..', '..', 'files'); 
+        try {
+            fs.unlinkSync(path.join(upFolder, face.facesId +'.png'));      
+        } catch(err) {
+            console.error(err);
+        }
+        return this.facesTagedRepository.delete(idFace);
+      }
     
 
 }

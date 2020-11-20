@@ -15,18 +15,3 @@ export class PeopleDto {
     @ApiProperty({description: 'Id of the profil photo', type: Number})
     readonly idCoverPhoto?: number;
 }
-
-export class PeopleFaceDto {
-    @ApiProperty({description: 'Id of the Photo to facetag'})
-    readonly idPhoto: number;
-    @ApiProperty({description: 'Id of the People to facetag'})
-    readonly idPeople?: number;
-    @ApiProperty({description: 'Relative position x of the face'})
-    readonly x: number;
-    @ApiProperty({description: 'Relative position y of the face'})
-    readonly y: number;
-    @ApiProperty({description: 'Relative height of the face'})
-    readonly h: number;
-    @ApiProperty({description: 'Relative width of the face'})
-    readonly w: number;
-}

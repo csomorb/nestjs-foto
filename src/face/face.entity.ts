@@ -1,12 +1,12 @@
 import { Entity, PrimaryGeneratedColumn, Column} from "typeorm";
 import { Photo } from "src/photo/photo.entity";
 import { ManyToOne } from "typeorm/decorator/relations/ManyToOne";
-import { People } from "./people.entity";
+import { People } from "../people/people.entity";
 
 @Entity()
-export class FacesTaged {
+export class Face {
   @PrimaryGeneratedColumn()
-    public facesTagedId!: number;
+    public facesId!: number;
 
     @Column()
     public idPhoto!: number;
@@ -38,9 +38,9 @@ export class FacesTaged {
     @Column({ type: "json", nullable: true })
     public similarity: any;
 
-    @ManyToOne(() => Photo, photo => photo.facesTaged)
+    @ManyToOne(() => Photo, photo => photo.faces)
     public photo: Photo;
 
-    @ManyToOne(() => People, people => people.facesTaged)
+    @ManyToOne(() => People, people => people.faces)
     public people: People;
 }

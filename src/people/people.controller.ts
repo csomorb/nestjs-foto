@@ -1,6 +1,6 @@
 import { Controller, Post, Body, Get, Param, Put, Delete, HttpStatus, HttpException } from '@nestjs/common';
 import { PeopleService } from './people.service';
-import { PeopleDto, PeopleFaceDto } from './people.dto';
+import { PeopleDto } from './people.dto';
 import { People } from './people.entity';
 
 @Controller('peoples')
@@ -38,18 +38,6 @@ export class PeopleController {
     @Get(':id')
     findPeople(@Param('id') id: string): Promise<People> {
         return this.peopleService.findOne(id);
-    }
-
-    @Post(':id/facetag')
-    async createFaceTag(@Body() peopleFaceDto: PeopleFaceDto, @Param('id') id: string): Promise<any>{
-        let v;
-        try {
-            v = await this.peopleService.createFaceTag(id,peopleFaceDto);
-        } catch(e) { //TODO: gérer les autres erreurs ! 
-            console.log(e);
-            throw e;
-        }
-        return v;
     }
 
     @Get(':id/photos')
