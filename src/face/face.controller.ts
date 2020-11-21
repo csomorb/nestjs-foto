@@ -1,4 +1,4 @@
-import { Controller, Post, Body, Get, Param, Put, Delete, HttpStatus, HttpException } from '@nestjs/common';
+import { Controller, Post, Body, Get, Param, Put, Delete} from '@nestjs/common';
 import { FaceDto } from './face.dto';
 import { FaceService } from './face.service';
 import { Face } from './face.entity';

@@ -32,8 +32,8 @@ export class Face {
     @Column({type: "smallint", nullable:true})
     public d: number;
 
-    @Column({ type: "json", nullable: true })
-    public descriptor: any;
+    @Column({ type: "text", nullable: true })
+    public descriptor: string;
 
     @Column({ type: "json", nullable: true })
     public similarity: any;

@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { forwardRef, Inject, Injectable } from '@nestjs/common';
 // import nodejs bindings to native tensorflow,
 // not required, but will speed up things drastically (python required)
 import '@tensorflow/tfjs-node';
@@ -30,7 +30,9 @@ export class FaceService {
     constructor(
         @InjectRepository(Face)
         private facesTagedRepository: Repository<Face>,
+        @Inject(forwardRef(() => PhotoService))
         private photoService: PhotoService,
+        @Inject(forwardRef(() => PeopleService))
         private peopleService: PeopleService,
         ){
         
@@ -41,18 +43,83 @@ export class FaceService {
         faceapi.nets.faceLandmark68Net.loadFromDisk('./src/models').then( () => console.log("facelandmark loaded"));
     }
 
-    async detectFaces(srcOrig){
+    async detectFaces(srcOrig, idPhoto){
         const referenceImage:any = await canvas.loadImage('files/'+srcOrig);
-        const detections = await faceapi.detectAllFaces(referenceImage);
+        
         const detectedFaces = [];
-        for (let i=0; i < detections.length; i++){
-            detectedFaces.push({
-                x: detections[i].relativeBox.x,
-                y: detections[i].relativeBox.y,
-                h: detections[i].relativeBox.height,
-                w: detections[i].relativeBox.width
-            });
+  
+        const facesTaged = await this.facesTagedRepository.find();
+        if (!facesTaged.length){
+            const detections = await faceapi.detectAllFaces(referenceImage);
+            for(let i = 0; i < detections.length; i++){
+                detectedFaces.push({
+                    x: detections[i].relativeBox.x,
+                    y: detections[i].relativeBox.y,
+                    h: detections[i].relativeBox.height,
+                    w: detections[i].relativeBox.width
+                });
+            }
+            return detectedFaces;
         }
+        const descriptorList = facesTaged.map(f => {return { id: f.idPeople, descriptor: f.descriptor}});
+        const faceMatcher = await this.createFaceMatcher(6,descriptorList,0.5)
+     
+        const results = await faceapi
+        .detectAllFaces(referenceImage)
+        .withFaceLandmarks()
+        .withFaceDescriptors();
+
+        for(let i = 0; i < results.length; i++){
+            // console.log(results[i].descriptor);
+            const bestMatch = faceMatcher.findBestMatch(results[i].descriptor);
+            console.log(bestMatch);
+            if (bestMatch.label !== 'unknown' && bestMatch.distance < 0.5){
+                //On a trouvé la correspondance, on l'enregistre
+                const people: People = await this.peopleService.findOne(bestMatch.label);
+                const photo: Photo = await this.photoService.findOne(''+idPhoto);
+                const tagExist = await this.facesTagedRepository.find({ where: { idPeople: people.id, idPhoto: idPhoto }})
+                if(!tagExist.length){
+                    let face = new Face();
+                    face.people = people;
+                    face.photo = photo;
+                    face.h = results[i].detection.relativeBox.height;
+                    face.w = results[i].detection.relativeBox.width;
+                    face.x = results[i].detection.relativeBox.x;
+                    face.y = results[i].detection.relativeBox.y;
+                    face.idPeople = people.id;
+                    face.idPhoto = photo.idPhoto;
+                    face.avg = bestMatch.distance;
+
+                    const upFolder = path.join(__dirname, '..', '..', 'files'); 
+                    face.descriptor = results[i].descriptor.toString();
+                    face = await this.facesTagedRepository.save(face);
+                    const image = Sharp(path.join(upFolder, srcOrig));
+                    const left = parseInt('' + (face.x * photo.width));
+                    const top = parseInt('' + (face.y * photo.height));
+                    const width = parseInt('' + (face.w * photo.width));
+                    const height = parseInt('' + (face.h * photo.height));
+                    await image.extract({ left: left, top: top, width: width, height: height})
+                    // .resize(200, 300, {
+                    //   fit: 'contain',
+                    // })
+                    .png()
+                    .toFile(path.join(upFolder,'facedescriptor','' + face.facesId + '.png'))
+                    .then(info => { console.log(info) })
+                    .catch(err => { console.log(err) });
+                    console.log("Image decoupé");
+                }
+            }
+            else{
+                // On n'a pas trouvé de correspondance, on enregistre la photo pour etre tagé plus tard
+                detectedFaces.push({
+                    x: results[i].detection.relativeBox.x,
+                    y: results[i].detection.relativeBox.y,
+                    h: results[i].detection.relativeBox.height,
+                    w: results[i].detection.relativeBox.width
+                });
+            }
+        }
+
         return detectedFaces;
     }
 
@@ -65,29 +132,34 @@ export class FaceService {
         .withFaceDescriptor();
         if (!descriptor) {
             console.log(" Face not found in create descriptor! idfaceed:" + idfaceed + " idPeople: " +idPeople);
-            return;
+            return null;
         }
         console.log("descriptor created: ");
-        console.log(descriptor);
+        // console.log(descriptor.descriptor);
+        // console.log(JSON.stringify(descriptor))
         return descriptor.descriptor;
     }
 
     async createFaceMatcher(nbFacePerPeople,descriptorsList: Array<any>, maxDescriptorDistance){
         const descriptorList = [];
         for (let i = 0; i < descriptorsList.length; i++){
-            const indexDescriptor = descriptorList.findIndex(d => d.id === descriptorsList[i].id);
-            if(indexDescriptor === -1){
-                descriptorList.push({ id: descriptorsList[i].id, descriptors: [descriptorsList[i].descriptor]})
-            }
-            else if (descriptorList[indexDescriptor].descriptors.length < nbFacePerPeople){
-                descriptorList[indexDescriptor].descriptors.push(descriptorsList[i].descriptor);
+            if (descriptorsList[i].descriptor){
+                // console.log(Float32Array.from(descriptorsList[i].descriptor.split(',')));
+                const indexDescriptor = descriptorList.findIndex(d => d.id === descriptorsList[i].id);
+                if(indexDescriptor === -1){
+                    descriptorList.push({ id: descriptorsList[i].id, descriptors: [Float32Array.from(descriptorsList[i].descriptor.split(','))]})
+                }
+                else if (descriptorList[indexDescriptor].descriptors.length < nbFacePerPeople){
+                    descriptorList[indexDescriptor].descriptors.push(Float32Array.from(descriptorsList[i].descriptor.split(',')));
+                }
             }
         }
+        // console.log(descriptorList);
         const labeledDescriptors = descriptorList.map( d => {
             return new faceapi.LabeledFaceDescriptors(''+d.id,d.descriptors)
         });
         console.log("labeledDescriptorsCreated..... :");
-        console.log(labeledDescriptors);
+        // console.log(labeledDescriptors);
         const faceMatcher = new faceapi.FaceMatcher(labeledDescriptors, maxDescriptorDistance)
         console.log("faceMatcherCreated.......");
         return faceMatcher;
@@ -101,8 +173,10 @@ export class FaceService {
             .withFaceLandmarks()
             .withFaceDescriptors();
 
+            
         results.forEach(fd => {
             const bestMatch = faceMatcher.findBestMatch(fd.descriptor);
+            
             console.log(bestMatch.toString());
         });
 
@@ -139,7 +213,9 @@ export class FaceService {
         .catch(err => { console.log(err) });
         console.log("Image decoupé, construction du descripteur");
         const descriptor = await this.createDescriptor(people.id,face.facesId);
-        face.descriptor = descriptor;
+        if (descriptor){
+            face.descriptor = descriptor.toString();
+        }
         return await this.facesTagedRepository.save(face);
       }
 

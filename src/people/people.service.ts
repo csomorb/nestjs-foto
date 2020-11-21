@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { People } from './people.entity';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -11,6 +11,7 @@ export class PeopleService {
     constructor(
         @InjectRepository(People)
         private peopleRepository: Repository<People>,
+        @Inject(forwardRef(() => PhotoService))
         private photoService: PhotoService,
       ) {}
     
@@ -33,7 +34,7 @@ export class PeopleService {
       }
     
       findPeopleWithPhotos(id: string): Promise<People> {
-        return this.peopleRepository.findOne(id,{ relations: ["faces","coverPhoto"] });
+        return this.peopleRepository.findOne(id,{ relations: ["faces.photo","faces","coverPhoto"] });
         return this.peopleRepository.createQueryBuilder("people")
      //   .leftJoinAndSelect("people.coverPhoto", "coverPhoto")
         .leftJoin('people_to_photo', 'scr', 'scr.idPeople = people.id')
