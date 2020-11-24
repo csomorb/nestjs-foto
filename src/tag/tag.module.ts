@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { TagController } from './tag.controller';
 import { TagService } from './tag.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
@@ -8,9 +8,10 @@ import { PhotoModule } from 'src/photo/photo.module';
 @Module({
   imports: [
     TypeOrmModule.forFeature([Tag]),
-    PhotoModule
+    forwardRef(() => PhotoModule)
   ],
   controllers: [TagController],
-  providers: [TagService]
+  providers: [TagService],
+  exports: [TagService]
 })
 export class TagModule {}

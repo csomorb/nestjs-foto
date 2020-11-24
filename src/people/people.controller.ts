@@ -50,6 +50,11 @@ export class PeopleController {
      return this.peopleService.update(id, peopleDto);
     }
 
+    @Put(':idPeople/cover/:idPhoto')
+    updateCover(@Param('idPeople') idPeople: string, @Param('idPhoto') idPhoto: string ): Promise<People> {
+      return this.peopleService.setCover(idPeople,idPhoto);
+    }
+
     @Delete(':id')
     async remove(@Param('id') id: string) {
         return this.peopleService.remove(id);

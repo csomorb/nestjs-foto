@@ -11,6 +11,8 @@ import * as Mkdirp from  'mkdirp';
 import * as Sharp from 'sharp';
 import {ExifParserFactory} from 'ts-exif-parser';
 import { FaceService } from 'src/face/face.service';
+import { TagService } from 'src/tag/tag.service';
+import { PeopleService } from 'src/people/people.service';
 
 @Injectable()
 export class PhotoService {
@@ -20,7 +22,11 @@ export class PhotoService {
         @Inject(forwardRef(() => AlbumService))
         private albumService: AlbumService,
         @Inject(forwardRef(() => FaceService))
-        private faceService: FaceService
+        private faceService: FaceService,
+        @Inject(forwardRef(() => PeopleService))
+        private peopleService: PeopleService,
+        @Inject(forwardRef(() => TagService))
+        private tagService: TagService
     ) {}
 
     async create(photo: Photo, photoDto: PhotoDto): Promise<Photo> {
@@ -158,6 +164,8 @@ export class PhotoService {
     async remove(id: string): Promise<void> {  
         const photoToDelete: Photo = await this.photoRepository.findOne(id);
         await this.albumService.deleteCoverPhotosFromAlbum(id);
+        await this.peopleService.deleteCoverPhotosFromPeople(id);
+        await this.tagService.deleteCoverPhotosFromTag(id);
         const upFolder = path.join(__dirname, '..', '..', 'files'); 
         try {
             if (photoToDelete.src1920)

@@ -4,6 +4,7 @@ import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { PeopleDto } from './people.dto';
 import { PhotoService } from 'src/photo/photo.service';
+import { Photo } from 'src/photo/photo.entity';
 
 
 @Injectable()
@@ -66,4 +67,27 @@ export class PeopleService {
         }
         return this.peopleRepository.save(people);
       }
+
+      async setCover(idPeople: string,idPhoto: string): Promise<People> {
+        const people: People = await this.peopleRepository.findOne(idPeople);
+        if (idPhoto === '0'){
+          people.coverPhoto = null;
+        }
+        else{
+          const coverPhoto: Photo = await this.photoService.findOne(idPhoto);
+          people.coverPhoto = coverPhoto;
+        }
+        return this.peopleRepository.save(people);
+      }
+      
+       /**
+       * Supprime les photos de couverture pour une id de Photo donné
+       */
+      async deleteCoverPhotosFromPeople(idCoverPhoto: string){
+        const listPeople: People[] = await  this.peopleRepository.find({ relations: ["coverPhoto"], where: { coverPhoto: idCoverPhoto } });
+        for(let i = 0 ; i < listPeople.length; i++){
+          listPeople[i].coverPhoto = null;
+          await this.peopleRepository.save(listPeople[i]);
+        }
+      }    
 }

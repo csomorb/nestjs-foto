@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Tag } from './tag.entity';
 import { Repository } from 'typeorm';
@@ -12,6 +12,7 @@ export class TagService {
     constructor(
         @InjectRepository(Tag)
         private tagRepository: Repository<Tag>,
+        @Inject(forwardRef(() => PhotoService))
         private photoService: PhotoService
       ) {}
     
@@ -32,7 +33,7 @@ export class TagService {
       }
     
       async update(id: string, tagDto: TagDto): Promise<Tag> {
-        let tag: Tag = await this.tagRepository.findOne(id);
+        const tag: Tag = await this.tagRepository.findOne(id);
         return await this.tagRepository.save({...tag, ...tagDto});
       }
     
@@ -46,4 +47,27 @@ export class TagService {
         }
         return this.tagRepository.save(tag);
       }
+
+      async setCover(idTag: string,idPhoto: string): Promise<Tag> {
+        const tag: Tag = await this.tagRepository.findOne(idTag);
+        if (idPhoto === '0'){
+          tag.coverPhoto = null;
+        }
+        else{
+          const coverPhoto: Photo = await this.photoService.findOne(idPhoto);
+          tag.coverPhoto = coverPhoto;
+        }
+        return this.tagRepository.save(tag);
+      }
+      
+       /**
+       * Supprime les photos de couverture pour une id de Photo donné
+       */
+      async deleteCoverPhotosFromTag(idCoverPhoto: string){
+        const listTag: Tag[] = await  this.tagRepository.find({ relations: ["coverPhoto"], where: { coverPhoto: idCoverPhoto } });
+        for(let i = 0 ; i < listTag.length; i++){
+          listTag[i].coverPhoto = null;
+          await this.tagRepository.save(listTag[i]);
+        }
+      }  
 }

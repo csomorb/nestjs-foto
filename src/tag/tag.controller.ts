@@ -36,4 +36,9 @@ export class TagController {
     async remove(@Param('id') id: string) {
         return this.tagService.remove(id);
     }
+
+    @Put(':idTag/cover/:idPhoto')
+    updateCover(@Param('idTag') idTag: string, @Param('idPhoto') idPhoto: string ): Promise<Tag> {
+      return this.tagService.setCover(idTag,idPhoto);
+    }
 }

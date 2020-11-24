@@ -5,11 +5,15 @@ import { Photo } from './photo.entity';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AlbumModule } from 'src/album/album.module';
 import { FaceModule } from 'src/face/face.module';
+import { TagModule } from 'src/tag/tag.module';
+import { PeopleModule } from 'src/people/people.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([Photo]),
     forwardRef(() => AlbumModule),
+    forwardRef(() => TagModule),
+    forwardRef(() => PeopleModule),
     forwardRef(() => FaceModule) 
   ],
   providers: [PhotoService],
