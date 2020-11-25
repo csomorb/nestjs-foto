@@ -21,11 +21,11 @@ export class PeopleService {
       }
     
       findOne(id: string): Promise<People> {
-        return this.peopleRepository.findOne(id,{ relations: ["coverPhoto"] });
+        return this.peopleRepository.findOne(id, {relations: ["coverPhoto"]});
       }
 
       findAllPeopleWithPhotos(): Promise<People[]> {
-        return this.peopleRepository.find({relations: ["faces","coverPhoto"]});
+        return this.peopleRepository.find({relations: ["faces", "coverPhoto"]});
         return this.peopleRepository.createQueryBuilder("people")
      //   .leftJoinAndSelect("people.coverPhoto", "coverPhoto")
         .leftJoin('people.peopleToPhoto', 'scr', 'scr.idPeople = people.id')
@@ -35,7 +35,7 @@ export class PeopleService {
       }
     
       findPeopleWithPhotos(id: string): Promise<People> {
-        return this.peopleRepository.findOne(id,{ relations: ["faces.photo","faces","coverPhoto"] });
+        return this.peopleRepository.findOne(id,{ relations: ["faces.photo","faces", "coverPhoto"] });
         return this.peopleRepository.createQueryBuilder("people")
      //   .leftJoinAndSelect("people.coverPhoto", "coverPhoto")
         .leftJoin('people_to_photo', 'scr', 'scr.idPeople = people.id')

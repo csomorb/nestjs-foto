@@ -232,7 +232,7 @@ export class FaceService {
         const photo = await this.photoService.findOne(''+face.idPhoto);
         photo.facesToTag.push(faceToTag);
         await this.photoService.save(photo);
-        const upFolder = path.join(__dirname, '..', '..', 'files'); 
+        const upFolder = path.join(__dirname, '..', '..', 'files','facedescriptor'); 
         try {
             fs.unlinkSync(path.join(upFolder, face.facesId +'.png'));      
         } catch(err) {

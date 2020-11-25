@@ -59,4 +59,5 @@ export class PeopleController {
     async remove(@Param('id') id: string) {
         return this.peopleService.remove(id);
     }
+
 }

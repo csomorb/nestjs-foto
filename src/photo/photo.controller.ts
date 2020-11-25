@@ -20,6 +20,16 @@ export class PhotoController {
      return this.photoService.update(id, photoDto);
     }
 
+    @Put(':id/rotate-left')
+    rotateLeft(@Param('id') id): Promise<Photo> {
+     return this.photoService.rotateLeft(id);
+    }
+
+    @Put(':id/rotate-right')
+    rotateRight(@Param('id') id): Promise<Photo> {
+     return this.photoService.rotateRight(id);
+    }
+
     @Get(':id')
     findPhoto(@Param('id') id: string): Promise<Photo> {
         return this.photoService.findOne(id);
@@ -28,6 +38,16 @@ export class PhotoController {
     @Delete(':id')
     async remove(@Param('id') id: string) {
         return this.photoService.remove(id);
+    }
+
+    @Put(':idPhoto/move-to-album/:idAlbum')
+    moveToAlbum(@Param('idPhoto') idPhoto,  @Param('idAlbum') idAlbum): Promise<Photo> {
+     return this.photoService.moveToAlbum(idPhoto, idAlbum);
+    }
+
+    @Put(':idPhoto/copy-to-album/:idAlbum')
+    copyToAlbum(@Param('idPhoto') idPhoto,  @Param('idAlbum') idAlbum): Promise<Photo> {
+     return this.photoService.copyToAlbum(idPhoto, idAlbum);
     }
 
 }

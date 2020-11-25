@@ -17,15 +17,21 @@ export class AlbumService {
   ) {}
 
   findAll(): Promise<Album[]> {
-    return this.albumRepository.find({ relations: ["coverPhoto"] });
+    // return this.albumRepository.find();
+    
+     return this.albumRepository.find({ relations: ["coverPhoto"] });
   }
 
   findOne(id: string): Promise<Album> {
-    return this.albumRepository.findOne(id,{ relations: ["coverPhoto"] });
+    // return this.albumRepository.findOne(id);
+  
+     return this.albumRepository.findOne(id,{ relations: ["coverPhoto"] });
   }
 
   findAlbumWithPhotos(id: string): Promise<Album> {
-    return this.albumRepository.findOne(id, { relations: ["photos", "coverPhoto"] });
+    // return this.albumRepository.findOne(id, { relations: ["photos"] });
+  
+     return this.albumRepository.findOne(id, { relations: ["photos", "coverPhoto"] });
   }
 
   async findAlbumTree(){
@@ -41,7 +47,7 @@ export class AlbumService {
     const manager = getManager();
     const roots = await (await manager.getTreeRepository(Album).findRoots());
     const idList = roots.map(a => a.id);
-    const rootAlbumswithCover = await this.albumRepository.find({ where: { id: In(idList) }, relations: ["coverPhoto","photos"]});
+    const rootAlbumswithCover = await this.albumRepository.find({ where: { id: In(idList) }, relations: ["photos", "coverPhoto"]});
     // récupérer la première photo si pas de cover
     for(let i= 0; i < rootAlbumswithCover.length; i++)
     {

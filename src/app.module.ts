@@ -27,8 +27,8 @@ import { FaceModule } from './face/face.module';
       database: 'foto',
       entities: [Album,Photo,Tag,People,Face],
       synchronize: true,
-    //  logging: true,
-    //  debug: true,
+      // logging: true,
+      // debug: true,
     }),
     MulterModule.register({
       dest: './fotos',

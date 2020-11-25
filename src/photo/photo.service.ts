@@ -160,7 +160,68 @@ export class PhotoService {
         }
         return await this.photoRepository.save({...photoSrc, ...photoDto});
     }
+
+    async rotateLeft(id:string): Promise<Photo>{
+        return await this.rotate(-90, id);
+    }
+
+    async rotate(deg: number, id:string){
+        Sharp.cache(false);
+        let photo: Photo = await this.photoRepository.findOne(id);
+        const upFolder = path.join(__dirname, '..', '..', 'files'); 
+        let image = Sharp(path.join(upFolder,photo.srcOrig));
+        let buffer = await image.rotate(deg).withMetadata().toBuffer();
+        await Sharp(buffer).toFile(path.join(upFolder, photo.srcOrig));
+        image = Sharp(path.join(upFolder,photo.src150));
+        buffer = await image.rotate(deg).toBuffer();
+        await Sharp(buffer).toFile(path.join(upFolder, photo.src150));
+        if (photo.src320){
+            image = Sharp(path.join(upFolder,photo.src320));
+            buffer = await image.rotate(deg).toBuffer();
+            await Sharp(buffer).toFile(path.join(upFolder, photo.src320));
+        }
+        if(photo.src640){
+            image = Sharp(path.join(upFolder,photo.src640));
+            buffer = await image.rotate(deg).toBuffer();
+            await Sharp(buffer).toFile(path.join(upFolder, photo.src640));
+        }
+        if(photo.src1280){
+            image = Sharp(path.join(upFolder,photo.src1280));
+            buffer = await image.rotate(deg).toBuffer();
+            await Sharp(buffer).toFile(path.join(upFolder, photo.src1280));
+        }
+        if(photo.src1920){
+            image = Sharp(path.join(upFolder,photo.src1920));
+            buffer = await image.rotate(deg).toBuffer();
+            await Sharp(buffer).toFile(path.join(upFolder, photo.src1920));
+        }
+        for (let i = 0; i < photo.faces.length; i++){
+            await this.faceService.deleteface(photo.faces[i].facesId.toString());
+        }
+        const facesToTag = await this.faceService.detectFaces(photo.srcOrig,photo.idPhoto);
+        photo = await this.photoRepository.findOne(photo.idPhoto);
+        photo.facesToTag = facesToTag;
+        return await this.photoRepository.save(photo);
+    }
+
+    async rotateRight(id:string): Promise<Photo>{
+        return await this.rotate(90, id);
+    }
+
+    async copyToAlbum(idPhoto:string, idAlbum: string){
+        const photo = await this.photoRepository.findOne(idPhoto);
+        const album = await this.albumService.findOne(idAlbum);
+        photo.albums.push(album);
+        return this.photoRepository.save(photo);
+    }
     
+    async moveToAlbum(idPhoto:string, idAlbum: string){
+        const photo = await this.photoRepository.findOne(idPhoto);
+        const album = await this.albumService.findOne(idAlbum);
+        photo.albums = [album];
+        return this.photoRepository.save(photo);
+    }
+
     async remove(id: string): Promise<void> {  
         const photoToDelete: Photo = await this.photoRepository.findOne(id);
         await this.albumService.deleteCoverPhotosFromAlbum(id);
