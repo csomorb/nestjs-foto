@@ -23,6 +23,11 @@ export class AlbumController {
         return this.albumService.findRootAlbums();
     }
 
+    @Get('photos-child/:limit')
+    findRootsWithChildPhotos(@Param('limit') limit: string): Promise<Album[]> {
+        return this.albumService.findRootsWithChildrenPhotos(limit);
+    }
+
     @Get(':id')
     findAlbum(@Param('id') id: string): Promise<Album> {
         return this.albumService.findOne(id);
@@ -31,6 +36,11 @@ export class AlbumController {
     @Get(':id/photos')
     findAlbumWithPhotos(@Param('id') id: string): Promise<Album> {
         return this.albumService.findAlbumWithPhotos(id);
+    }
+
+    @Get(':id/photos-child/:limit')
+    findAlbumWithChildPhotos(@Param('id') id: string,@Param('limit') limit: string): Promise<Album[]> {
+        return this.albumService.findAlbumWithChildrenPhotos(id,limit);
     }
 
     @Get(':id/childrens')
