@@ -15,6 +15,8 @@ import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
 import { Face } from './face/face.entity';
 import { FaceModule } from './face/face.module';
+import { VideoModule } from './video/video.module';
+import { Video } from './video/video.entity';
 
 @Module({
   imports: [
@@ -25,7 +27,7 @@ import { FaceModule } from './face/face.module';
       username: 'dev',
       password: 'devplatform',
       database: 'foto',
-      entities: [Album,Photo,Tag,People,Face],
+      entities: [Album,Photo,Tag,People,Face,Video],
       synchronize: true,
       // logging: true,
       // debug: true,
@@ -41,6 +43,7 @@ import { FaceModule } from './face/face.module';
     TagModule,
     PeopleModule,
     FaceModule,
+    VideoModule,
   ],
   controllers: [AppController],
   providers: [AppService],

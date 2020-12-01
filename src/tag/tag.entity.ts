@@ -1,6 +1,7 @@
 import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, ManyToMany, OneToOne, JoinColumn} from "typeorm";
 import { ApiProperty } from "@nestjs/swagger";
 import { Photo } from "src/photo/photo.entity";
+import { Video } from "src/video/video.entity";
 
 @Entity()
 export class Tag {
@@ -24,6 +25,9 @@ export class Tag {
   
   @ManyToMany(type => Photo, photo => photo.tags)
   photos: Photo[];
+
+  @ManyToMany(type => Video, video => video.albums)
+  videos: Video[];
 
   @OneToOne(type => Photo)
   @JoinColumn()

@@ -27,6 +27,11 @@ const { Canvas, Image, ImageData } = canvas;
 
 @Injectable()
 export class FaceService {
+
+    nbFacesTaged: number;
+    nbPeopleTaged: number;
+    faceMatcher: faceapi.FaceMatcher;
+
     constructor(
         @InjectRepository(Face)
         private facesTagedRepository: Repository<Face>,
@@ -37,10 +42,40 @@ export class FaceService {
         ){
         
         faceapi.env.monkeyPatch({ Canvas, Image, ImageData } as any);
-        faceapi.nets.ssdMobilenetv1.loadFromDisk('./src/models').then( () => { console.log("ssdLoaded");});
-        faceapi.nets.ageGenderNet.loadFromDisk('./src/models').then( () => {console.log("agegenderloaded")});
-        faceapi.nets.faceRecognitionNet.loadFromDisk('./src/models').then( () => console.log("facerecognition loaded"));
-        faceapi.nets.faceLandmark68Net.loadFromDisk('./src/models').then( () => console.log("facelandmark loaded"));
+        const loadSSD = faceapi.nets.ssdMobilenetv1.loadFromDisk('./src/models');
+        const loadAgeGender = faceapi.nets.ageGenderNet.loadFromDisk('./src/models');
+        const loadFaceRecognition = faceapi.nets.faceRecognitionNet.loadFromDisk('./src/models');
+        const loadLandmark68 = faceapi.nets.faceLandmark68Net.loadFromDisk('./src/models');
+
+        Promise.all([loadSSD, loadAgeGender, loadFaceRecognition, loadLandmark68]).then( () => {
+            console.log("Tenserflow models loaded into memory...");
+        });
+
+        this.nbFacesTaged = 0;
+        this.nbPeopleTaged = 0;
+
+        this.facesTagedRepository.createQueryBuilder("face")
+            .select("face.idPeople")
+            .addSelect("COUNT(face.idPeople)", "sumP")
+            .where("face.descriptor is not null")
+            .groupBy("face.idPeople")
+            .getRawMany().then( faces => {
+                this.nbPeopleTaged = faces.length; 
+                faces.map(f =>  this.nbFacesTaged += parseInt(f.sumP));
+            });
+
+        this.facesTagedRepository.createQueryBuilder("face")
+            .select("face.idPeople , face.descriptor")
+            .where("face.descriptor is not null")
+            .addOrderBy("face.avg")
+            .getRawMany().then( descriptorList => {
+                if (!descriptorList.length){
+                    this.faceMatcher = null;
+                }
+                else{
+                    this.createFaceMatcher(6,descriptorList,0.5);
+                }
+            });  
     }
 
     async detectFaces(srcOrig, idPhoto){
@@ -48,7 +83,14 @@ export class FaceService {
         
         const detectedFaces = [];
   
-        const facesTaged = await this.facesTagedRepository.find();
+        // const facesTaged = await this.facesTagedRepository.find();
+        const facesTaged = await this.facesTagedRepository.createQueryBuilder("face")
+            .select("face.idPeople")
+            .addSelect("COUNT(face.idPeople)", "sumP")
+            .where("face.descriptor is not null")
+            .groupBy("face.idPeople")
+            .getRawMany();
+            
         if (!facesTaged.length){
             const detections = await faceapi.detectAllFaces(referenceImage);
             for(let i = 0; i < detections.length; i++){
@@ -61,9 +103,29 @@ export class FaceService {
             }
             return detectedFaces;
         }
-        const descriptorList = facesTaged.map(f => {return { id: f.idPeople, descriptor: f.descriptor}});
-        const faceMatcher = await this.createFaceMatcher(6,descriptorList,0.5)
-     
+
+        let buildFaceMatcherAgain = false;
+        let totalFaceTaged = 0;
+        facesTaged.map(f =>  totalFaceTaged += parseInt(f.sumP));
+        // On a un nouvel personne avec un descripteur de face, on reconstruit la facematcher
+        if (this.nbPeopleTaged < facesTaged.length){
+            buildFaceMatcherAgain = true;
+        } // Si on n'a pas de nouvel personne mais qu'on dépasse de 10% le nombre de nouvelles personnes tagués on reconstruit le facematcher
+          // Cela permet de prendre en compte les descripteurs qui ont obtenu  une meilleur moyenne pour la personne
+        else if(totalFaceTaged > this.nbFacesTaged * 1.1 ){
+            buildFaceMatcherAgain = true;
+        }
+        if (buildFaceMatcherAgain){
+            this.nbFacesTaged = totalFaceTaged;
+            this.nbPeopleTaged = facesTaged.length;
+            const descriptorList = await this.facesTagedRepository.createQueryBuilder("face")
+            .select("face.idPeople , face.descriptor")
+            .where("face.descriptor is not null")
+            .addOrderBy("face.avg")
+            .getRawMany();
+            await this.createFaceMatcher(6,descriptorList,0.5);
+        }
+
         const results = await faceapi
         .detectAllFaces(referenceImage)
         .withFaceLandmarks()
@@ -71,7 +133,7 @@ export class FaceService {
 
         for(let i = 0; i < results.length; i++){
             // console.log(results[i].descriptor);
-            const bestMatch = faceMatcher.findBestMatch(results[i].descriptor);
+            const bestMatch = this.faceMatcher.findBestMatch(results[i].descriptor);
             console.log(bestMatch);
             if (bestMatch.label !== 'unknown' && bestMatch.distance < 0.5){
                 //On a trouvé la correspondance, on l'enregistre
@@ -143,16 +205,16 @@ export class FaceService {
     async createFaceMatcher(nbFacePerPeople,descriptorsList: Array<any>, maxDescriptorDistance){
         const descriptorList = [];
         for (let i = 0; i < descriptorsList.length; i++){
-            if (descriptorsList[i].descriptor){
+            // if (descriptorsList[i].descriptor){
                 // console.log(Float32Array.from(descriptorsList[i].descriptor.split(',')));
-                const indexDescriptor = descriptorList.findIndex(d => d.id === descriptorsList[i].id);
+                const indexDescriptor = descriptorList.findIndex(d => d.idPeople === descriptorsList[i].id);
                 if(indexDescriptor === -1){
-                    descriptorList.push({ id: descriptorsList[i].id, descriptors: [Float32Array.from(descriptorsList[i].descriptor.split(','))]})
+                    descriptorList.push({ id: descriptorsList[i].idPeople, descriptors: [Float32Array.from(descriptorsList[i].descriptor.split(','))]})
                 }
                 else if (descriptorList[indexDescriptor].descriptors.length < nbFacePerPeople){
                     descriptorList[indexDescriptor].descriptors.push(Float32Array.from(descriptorsList[i].descriptor.split(',')));
                 }
-            }
+            // }
         }
         // console.log(descriptorList);
         const labeledDescriptors = descriptorList.map( d => {
@@ -160,9 +222,8 @@ export class FaceService {
         });
         console.log("labeledDescriptorsCreated..... :");
         // console.log(labeledDescriptors);
-        const faceMatcher = new faceapi.FaceMatcher(labeledDescriptors, maxDescriptorDistance)
+        this.faceMatcher = new faceapi.FaceMatcher(labeledDescriptors, maxDescriptorDistance)
         console.log("faceMatcherCreated.......");
-        return faceMatcher;
     }
     
     async predictFacesOnImage(srcOrig: string, faceMatcher: faceapi.FaceMatcher){
@@ -185,7 +246,8 @@ export class FaceService {
     async createface(faceDto: FaceDto){
         const people: People = await this.peopleService.findOne(''+faceDto.idPeople);
         const photo: Photo = await this.photoService.findOne(''+faceDto.idPhoto);
-        photo.facesToTag.splice(photo.facesToTag.findIndex(f => f.x === faceDto.x && f.y === faceDto.y),1);
+        if (photo.facesToTag.findIndex(f => f.x === faceDto.x && f.y === faceDto.y) !== -1)
+            photo.facesToTag.splice(photo.facesToTag.findIndex(f => f.x === faceDto.x && f.y === faceDto.y),1);
         let face = new Face();
         face.people = people;
         face.photo = photo;
@@ -196,8 +258,11 @@ export class FaceService {
         face.idPeople = people.id;
         face.idPhoto = photo.idPhoto;
         await this.photoService.save(photo);
-        const upFolder = path.join(__dirname, '..', '..', 'files'); 
+        if (!face.h){
+            return await this.facesTagedRepository.save(face);
+        }
         face = await this.facesTagedRepository.save(face);
+        const upFolder = path.join(__dirname, '..', '..', 'files'); 
         const image = Sharp(path.join(upFolder,photo.srcOrig));
         const left = parseInt('' + (faceDto.x * photo.width));
         const top = parseInt('' + (faceDto.y * photo.height));
