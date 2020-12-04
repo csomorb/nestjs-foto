@@ -32,7 +32,7 @@ export class AlbumService {
   findAlbumWithPhotos(id: string): Promise<Album> {
     // return this.albumRepository.findOne(id, { relations: ["photos"] });
   
-     return this.albumRepository.findOne(id, { relations: ["photos", "coverPhoto"] });
+     return this.albumRepository.findOne(id, { relations: ["photos","videos", "coverPhoto"] });
   }
 
   async findAlbumTree(){
@@ -48,7 +48,7 @@ export class AlbumService {
     const manager = getManager();
     const roots = await (await manager.getTreeRepository(Album).findRoots());
     const idList = roots.map(a => a.id);
-    const rootAlbumswithCover = await this.albumRepository.find({ where: { id: In(idList) }, relations: ["photos", "coverPhoto"]});
+    const rootAlbumswithCover = await this.albumRepository.find({ where: { id: In(idList) }, relations: ["photos","videos", "coverPhoto"]});
     // récupérer la première photo si pas de cover
     for(let i= 0; i < rootAlbumswithCover.length; i++)
     {
@@ -142,6 +142,13 @@ export class AlbumService {
     if (limit === "0"){
       return this.albumRepository.createQueryBuilder('album')
       .leftJoinAndSelect('album.photos', 'photos')
+      .leftJoinAndSelect('photos.albums', 'albums')
+      .leftJoinAndSelect('photos.tags', 'tags')
+      .leftJoinAndSelect('photos.faces', 'faces')
+      .leftJoinAndSelect('album.videos', 'videos')
+      .leftJoinAndSelect('videos.albums', 'albumsv')
+      .leftJoinAndSelect('videos.tags', 'tagsv')
+      // .leftJoinAndSelect('videos.faces', 'faces')
       .where("album.id IN (:...ids)", { ids: listId })
       .orderBy('photos.shootDate', 'DESC')
       .skip(100).take(10000000)
@@ -150,6 +157,13 @@ export class AlbumService {
     else{
       return this.albumRepository.createQueryBuilder('album')
       .leftJoinAndSelect('album.photos', 'photos')
+      .leftJoinAndSelect('photos.albums', 'albums')
+      .leftJoinAndSelect('photos.tags', 'tags')
+      .leftJoinAndSelect('photos.faces', 'faces')
+      .leftJoinAndSelect('album.videos', 'videos')
+      .leftJoinAndSelect('videos.albums', 'albumsv')
+      .leftJoinAndSelect('videos.tags', 'tagsv')
+      // .leftJoinAndSelect('videos.faces', 'faces')
       .where("album.id IN (:...ids)", { ids: listId })
       .orderBy('photos.shootDate', 'DESC')
       .take(100)
@@ -162,6 +176,13 @@ export class AlbumService {
     if (limit === "0"){
       return this.albumRepository.createQueryBuilder('album')
       .leftJoinAndSelect('album.photos', 'photos')
+      .leftJoinAndSelect('photos.albums', 'albums')
+      .leftJoinAndSelect('photos.tags', 'tags')
+      .leftJoinAndSelect('photos.faces', 'faces')
+      .leftJoinAndSelect('album.videos', 'videos')
+      .leftJoinAndSelect('videos.albums', 'albumsv')
+      .leftJoinAndSelect('videos.tags', 'tagv')
+      // .leftJoinAndSelect('videos.faces', 'faces')
       .orderBy('photos.shootDate', 'DESC')
       .skip(100).take(10000000)
       .getMany();
@@ -169,6 +190,13 @@ export class AlbumService {
     else{
       return this.albumRepository.createQueryBuilder('album')
       .leftJoinAndSelect('album.photos', 'photos')
+      .leftJoinAndSelect('photos.albums', 'albums')
+      .leftJoinAndSelect('photos.tags', 'tags')
+      .leftJoinAndSelect('photos.faces', 'faces')
+      .leftJoinAndSelect('album.videos', 'videos')
+      .leftJoinAndSelect('videos.albums', 'albumsv')
+      .leftJoinAndSelect('videos.tags', 'tagsv')
+      // .leftJoinAndSelect('videos.faces', 'faces')
       .orderBy('photos.shootDate', 'DESC')
       .take(100)
       .getMany();

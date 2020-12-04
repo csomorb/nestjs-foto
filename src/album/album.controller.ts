@@ -23,6 +23,12 @@ export class AlbumController {
         return this.albumService.findRootAlbums();
     }
 
+    @Get('covers')
+    findCovers(): Promise<Album[]>  {
+        return this.albumService.findAll();
+    }
+    
+
     @Get('photos-child/:limit')
     findRootsWithChildPhotos(@Param('limit') limit: string): Promise<Album[]> {
         return this.albumService.findRootsWithChildrenPhotos(limit);
