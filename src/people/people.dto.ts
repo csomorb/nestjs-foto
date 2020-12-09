@@ -15,3 +15,8 @@ export class PeopleDto {
     @ApiProperty({description: 'Id of the profil photo', type: Number})
     readonly idCoverPhoto?: number;
 }
+
+export class DownloadPeopleDto{
+    readonly idVideos?: Array<number>;
+    readonly idPhotos?: Array<number>;
+}

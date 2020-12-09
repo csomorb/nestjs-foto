@@ -8,3 +8,8 @@ export class TagDto {
     @ApiProperty({description: 'Id of the cover Photo', type: Number})
     readonly idCoverPhoto?: number;
 }
+
+export class DownloadTagDto{
+    readonly idVideos?: Array<number>;
+    readonly idPhotos?: Array<number>;
+}

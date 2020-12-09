@@ -305,6 +305,11 @@ export class FaceService {
         }
         return this.facesTagedRepository.delete(idFace);
       }
+
+      async deletePeople(idPeople: string){
+        const faces = await this.facesTagedRepository.find({ where: { idPeople: idPeople} })
+        faces.map( async f => await this.facesTagedRepository.delete(f.facesId));
+      }
     
 
 }

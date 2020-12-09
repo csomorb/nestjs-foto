@@ -115,6 +115,10 @@ export class PhotoService {
         return this.photoRepository.findOne(id);
     }
 
+    findList(list): Promise<Array<Photo>>{
+        return this.photoRepository.findByIds(list);
+    }
+
     save(photo: Photo){
         return this.photoRepository.save(photo);
     }

@@ -2,6 +2,7 @@ import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateCol
 import { ApiProperty } from "@nestjs/swagger";
 import { Album } from "src/album/album.entity";
 import { Tag } from "src/tag/tag.entity";
+import { People } from "src/people/people.entity";
 
 @Entity()
 export class Video {
@@ -61,5 +62,11 @@ export class Video {
   })
   @JoinTable()
   tags: Tag[];
+
+  @ManyToMany(type => People, people => people.videos, {
+    eager: true
+  })
+  @JoinTable()
+  peoples: People[];
 
 }

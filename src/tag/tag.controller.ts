@@ -1,6 +1,6 @@
-import { Controller, Post, Body, Get, Param, Put, Delete } from '@nestjs/common';
+import { Controller, Post, Body, Get, Param, Put, Delete, Res } from '@nestjs/common';
 import { TagService } from './tag.service';
-import { TagDto } from './tag.dto';
+import { DownloadTagDto, TagDto } from './tag.dto';
 import { Tag } from './tag.entity';
 
 @Controller('tags')
@@ -25,6 +25,24 @@ export class TagController {
     @Get(':id/photos')
     findTagWithPhotos(@Param('id') id: string): Promise<Tag> {
         return this.tagService.findTagWithPhotos(id);
+    }
+
+    @Get(':id/download')
+    async download(@Param('id') id: string, @Res() res): Promise<any> {
+        const zip = await this.tagService.download(id);
+        res.set('Content-Type','application/octet-stream');
+        res.set('Content-Disposition',`attachment; filename=${zip.filename}`);
+        res.set('Content-Length',zip.buffer.length);
+        res.send(zip.buffer);
+    }
+
+    @Put(':id/download')
+    async downloadItems(@Param('id') id: string, @Res() res, @Body() items: DownloadTagDto): Promise<any> {
+        const zip = await this.tagService.downloadItems(id,items);
+        res.set('Content-Type','application/octet-stream');
+        res.set('Content-Disposition',`attachment; filename=${zip.filename}`);
+        res.set('Content-Length',zip.buffer.length);
+        res.send(zip.buffer);
     }
 
     @Put(':id')

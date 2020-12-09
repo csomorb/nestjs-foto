@@ -7,7 +7,7 @@ import { Video } from "src/video/video.entity";
 export class Tag {
 
   @PrimaryGeneratedColumn() 
-  idTag: number;
+  id: number;
 
   @ApiProperty()
   @Column({unique: true}) 

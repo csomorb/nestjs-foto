@@ -34,6 +34,11 @@ export class VideoService {
         return this.videoRepository.findOne(id);
     }
 
+    
+    findList(list): Promise<Array<Video>>{
+        return this.videoRepository.findByIds(list);
+    }
+
     async update(id: string, videoDto: VideoDto): Promise<Video> {
         const videoSrc: Video = await this.videoRepository.findOne(id);
         return await this.videoRepository.save({...videoSrc, ...videoDto});

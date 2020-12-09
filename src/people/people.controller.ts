@@ -1,6 +1,6 @@
-import { Controller, Post, Body, Get, Param, Put, Delete, HttpStatus, HttpException } from '@nestjs/common';
+import { Controller, Post, Body, Get, Param, Put, Delete, HttpStatus, HttpException, Res } from '@nestjs/common';
 import { PeopleService } from './people.service';
-import { PeopleDto } from './people.dto';
+import { DownloadPeopleDto, PeopleDto } from './people.dto';
 import { People } from './people.entity';
 
 @Controller('peoples')
@@ -43,6 +43,24 @@ export class PeopleController {
     @Get(':id/photos')
     findPeopleWithPhotos(@Param('id') id: string): Promise<People> {
         return this.peopleService.findPeopleWithPhotos(id);
+    }
+
+    @Get(':id/download')
+    async download(@Param('id') id: string, @Res() res): Promise<any> {
+        const zip = await this.peopleService.download(id);
+        res.set('Content-Type','application/octet-stream');
+        res.set('Content-Disposition',`attachment; filename=${zip.filename}`);
+        res.set('Content-Length',zip.buffer.length);
+        res.send(zip.buffer);
+    }
+
+    @Put(':id/download')
+    async downloadItems(@Param('id') id: string, @Res() res, @Body() items: DownloadPeopleDto): Promise<any> {
+        const zip = await this.peopleService.downloadItems(id,items);
+        res.set('Content-Type','application/octet-stream');
+        res.set('Content-Disposition',`attachment; filename=${zip.filename}`);
+        res.set('Content-Length',zip.buffer.length);
+        res.send(zip.buffer);
     }
 
     @Put(':id')

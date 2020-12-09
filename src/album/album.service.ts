@@ -2,11 +2,16 @@ import { Injectable, forwardRef, Inject } from '@nestjs/common';
 import { Album } from './album.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, getManager } from 'typeorm';
-import { AlbumDto } from './album.dto';
+import { AlbumDto, DownloadDto } from './album.dto';
 import { PhotoService } from 'src/photo/photo.service';
 import { Photo } from 'src/photo/photo.entity';
 import { In } from 'typeorm/find-options/operator/In';
-import { where } from '@tensorflow/tfjs-node';
+import { tile, where } from '@tensorflow/tfjs-node';
+import fs = require('fs');
+import path = require('path');
+import * as Mkdirp from  'mkdirp';
+import AdmZip = require('adm-zip');
+import { VideoService } from 'src/video/video.service';
 
 @Injectable()
 export class AlbumService {
@@ -14,7 +19,9 @@ export class AlbumService {
     @InjectRepository(Album)
     private albumRepository: Repository<Album>,
     @Inject(forwardRef(() => PhotoService))
-    private photoService: PhotoService
+    private photoService: PhotoService,
+    @Inject(forwardRef(() => VideoService))
+    private videoService: VideoService
   ) {}
 
   findAll(): Promise<Album[]> {
@@ -201,6 +208,68 @@ export class AlbumService {
       .take(100)
       .getMany();
     }
+  }
+
+  async download(id: string){
+    const tmp = Date.now();   
+    const album = await this.albumRepository.findOne(id, { relations: ["photos","videos"] });
+    const title = album.title.replace(/\s/g, '_');
+    const tmpFolder = path.join(__dirname, '..', '..', 'files','tmp',''+tmp); 
+    const imgFolder = path.join(__dirname, '..', '..', 'files'); 
+    const videoFolder = path.join(__dirname, '..', '..', 'files','videos');
+    await Mkdirp.sync(tmpFolder);
+    album.photos.map(p =>{
+      fs.copyFileSync(path.join(imgFolder,p.srcOrig),path.join(tmpFolder,p.originalFileName));
+    });
+    album.videos.map(v =>{
+      fs.copyFileSync(path.join(videoFolder,''+v.idVideo,''+v.idVideo+'.mp4'),path.join(tmpFolder,v.originalFileName.split('.')[0]+'.mp4'));
+    })
+    const zip = new AdmZip();
+    zip.addLocalFolder(tmpFolder,title);
+    // zip.writeZip(album.title);
+    try {
+      fs.rmdir(tmpFolder, { recursive: true }, (err) => {
+          if (err) {
+              throw err;
+          }
+          console.log(`${tmpFolder} is deleted!`);
+      });            
+    } catch(err) {
+        console.error(err);
+    }
+    return {buffer: zip.toBuffer(), filename: title + '.zip'};
+  }
+
+  async downloadItems(id:string,items: DownloadDto){
+    const tmp = Date.now();   
+    const album = await this.albumRepository.findOne(id);
+    const photos = await this.photoService.findList(items.idPhotos);
+    const videos = await this.videoService.findList(items.idVideos);
+    const title = album.title.replace(/\s/g, '_');
+    const tmpFolder = path.join(__dirname, '..', '..', 'files','tmp',''+tmp); 
+    const imgFolder = path.join(__dirname, '..', '..', 'files'); 
+    const videoFolder = path.join(__dirname, '..', '..', 'files','videos');
+    await Mkdirp.sync(tmpFolder);
+    photos.map(p =>{
+      fs.copyFileSync(path.join(imgFolder,p.srcOrig),path.join(tmpFolder,p.originalFileName));
+    });
+    videos.map(v =>{
+      fs.copyFileSync(path.join(videoFolder,''+v.idVideo,''+v.idVideo+'.mp4'),path.join(tmpFolder,v.originalFileName.split('.')[0]+'.mp4'));
+    })
+    const zip = new AdmZip();
+    zip.addLocalFolder(tmpFolder,title);
+    // zip.writeZip(album.title);
+    try {
+      fs.rmdir(tmpFolder, { recursive: true }, (err) => {
+          if (err) {
+              throw err;
+          }
+          console.log(`${tmpFolder} is deleted!`);
+      });            
+    } catch(err) {
+        console.error(err);
+    }
+    return {buffer: zip.toBuffer(), filename: title + '.zip'};
   }
 
 }
