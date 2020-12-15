@@ -45,7 +45,7 @@ export class PeopleService {
       }
     
       findPeopleWithPhotos(id: string): Promise<People> {
-        return this.peopleRepository.findOne(id,{ relations: ["faces.photo","faces", "coverPhoto"] });
+        return this.peopleRepository.findOne(id,{ relations: ["faces.photo","faces", "coverPhoto","videos"] });
         return this.peopleRepository.createQueryBuilder("people")
      //   .leftJoinAndSelect("people.coverPhoto", "coverPhoto")
         .leftJoin('people_to_photo', 'scr', 'scr.idPeople = people.id')

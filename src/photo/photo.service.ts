@@ -226,6 +226,22 @@ export class PhotoService {
         return this.photoRepository.save(photo);
     }
 
+    async addTag(idPhoto:string, idTag: string){
+        const photo = await this.photoRepository.findOne(idPhoto);
+        const tag = await this.tagService.findOne(idTag);
+        photo.tags.push(tag);
+        return this.photoRepository.save(photo);
+    }
+
+    async deleteTag(idPhoto:string, idTag: string){
+        const photo = await this.photoRepository.findOne(idPhoto);
+        const index = photo.tags.findIndex(t => t.id == parseInt(idTag));
+        if (index !== -1){
+            photo.tags.splice(index,1);
+        }
+        return this.photoRepository.save(photo);
+    }
+
     async remove(id: string): Promise<void> {  
         const photoToDelete: Photo = await this.photoRepository.findOne(id);
         await this.albumService.deleteCoverPhotosFromAlbum(id);

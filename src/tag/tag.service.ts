@@ -32,7 +32,7 @@ export class TagService {
       }
     
       findTagWithPhotos(id: string): Promise<Tag> {
-        return this.tagRepository.findOne(id, { relations: ["photos"] });
+        return this.tagRepository.findOne(id, { relations: ["photos","videos"] });
       }
     
       async remove(id: string): Promise<void> {

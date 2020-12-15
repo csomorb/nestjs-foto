@@ -26,7 +26,7 @@ export class Tag {
   @ManyToMany(type => Photo, photo => photo.tags)
   photos: Photo[];
 
-  @ManyToMany(type => Video, video => video.albums)
+  @ManyToMany(type => Video, video => video.tags)
   videos: Video[];
 
   @OneToOne(type => Photo)

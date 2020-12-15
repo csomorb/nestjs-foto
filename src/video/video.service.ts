@@ -58,6 +58,38 @@ export class VideoService {
         return this.videoRepository.save(video);
     }
 
+    async addTag(idVideo:string, idTag: string){
+        const video = await this.videoRepository.findOne(idVideo);
+        const tag = await this.tagService.findOne(idTag);
+        video.tags.push(tag);
+        return this.videoRepository.save(video);
+    }
+
+    async deleteTag(idVideo:string, idTag: string){
+        const video = await this.videoRepository.findOne(idVideo);
+        const index = video.tags.findIndex(t => t.id == parseInt(idTag));
+        if (index !== -1){
+            video.tags.splice(index,1);
+        }
+        return this.videoRepository.save(video);
+    }
+
+    async addPeople(idVideo:string, idPeople: string){
+        const video = await this.videoRepository.findOne(idVideo);
+        const people = await this.peopleService.findOne(idPeople);
+        video.peoples.push(people);
+        return this.videoRepository.save(video);
+    }
+
+    async deletePeople(idVideo:string, idPeople: string){
+        const video = await this.videoRepository.findOne(idVideo);
+        const index = video.peoples.findIndex(t => t.id == parseInt(idPeople));
+        if (index !== -1){
+            video.peoples.splice(index,1);
+        }
+        return this.videoRepository.save(video);
+    }
+
     async remove(id: string): Promise<void> {  
         const videoToDelete: Video = await this.videoRepository.findOne(id);
         if (!videoToDelete.idVideo)

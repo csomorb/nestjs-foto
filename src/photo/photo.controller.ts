@@ -50,4 +50,14 @@ export class PhotoController {
      return this.photoService.copyToAlbum(idPhoto, idAlbum);
     }
 
+    @Put(':idPhoto/tags/:idTag')
+    addTag(@Param('idPhoto') idPhoto,  @Param('idTag') idTag): Promise<Photo> {
+     return this.photoService.addTag(idPhoto, idTag);
+    }
+
+    @Delete(':idPhoto/tags/:idTag')
+    deleteTag(@Param('idPhoto') idPhoto,  @Param('idTag') idTag): Promise<Photo> {
+     return this.photoService.deleteTag(idPhoto, idTag);
+    }
+
 }

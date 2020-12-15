@@ -48,4 +48,25 @@ export class VideoController {
     copyToAlbum(@Param('idVideo') idVideo,  @Param('idAlbum') idAlbum): Promise<Video> {
      return this.videoService.copyToAlbum(idVideo, idAlbum);
     }
+
+    @Put(':idVideo/tags/:idTag')
+    addTag(@Param('idVideo') idVideo,  @Param('idTag') idTag): Promise<Video> {
+     return this.videoService.addTag(idVideo, idTag);
+    }
+
+    @Delete(':idVideo/tags/:idTag')
+    deleteTag(@Param('idVideo') idVideo,  @Param('idTag') idTag): Promise<Video> {
+     return this.videoService.deleteTag(idVideo, idTag);
+    }
+
+    @Put(':idVideo/peoples/:idPeople')
+    addPeople(@Param('idVideo') idVideo,  @Param('idPeople') idPeople): Promise<Video> {
+     return this.videoService.addPeople(idVideo, idPeople);
+    }
+
+    @Delete(':idVideo/peoples/:idPeople')
+    deletePeople(@Param('idVideo') idVideo,  @Param('idPeople') idPeople): Promise<Video> {
+     return this.videoService.deletePeople(idVideo, idPeople);
+    }
+    
 }
