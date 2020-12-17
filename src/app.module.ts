@@ -17,6 +17,10 @@ import { Face } from './face/face.entity';
 import { FaceModule } from './face/face.module';
 import { VideoModule } from './video/video.module';
 import { Video } from './video/video.entity';
+import { UserEntity } from './user/user.entity';
+import { UserModule } from './user/user.module';
+import { AuthModule } from './auth/auth.module';
+import { ConfigModule } from '@nestjs/config/dist/config.module';
 
 @Module({
   imports: [
@@ -27,7 +31,7 @@ import { Video } from './video/video.entity';
       username: 'dev',
       password: 'devplatform',
       database: 'foto',
-      entities: [Album,Photo,Tag,People,Face,Video],
+      entities: [Album,Photo,Tag,People,Face,Video,UserEntity],
       synchronize: true,
       // logging: true,
       // debug: true,
@@ -35,6 +39,7 @@ import { Video } from './video/video.entity';
     MulterModule.register({
       dest: './fotos',
     }),
+    ConfigModule.forRoot({ isGlobal: true,}),
     ServeStaticModule.forRoot({
       rootPath: join(__dirname, '..', 'files'),
     }),
@@ -44,6 +49,8 @@ import { Video } from './video/video.entity';
     PeopleModule,
     FaceModule,
     VideoModule,
+    UserModule,
+    AuthModule,
   ],
   controllers: [AppController],
   providers: [AppService],

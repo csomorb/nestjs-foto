@@ -7,9 +7,13 @@ import { AlbumModule } from 'src/album/album.module';
 import { FaceModule } from 'src/face/face.module';
 import { TagModule } from 'src/tag/tag.module';
 import { PeopleModule } from 'src/people/people.module';
+import { AuthModule } from 'src/auth/auth.module';
+import { UserModule } from 'src/user/user.module';
 
 @Module({
   imports: [
+    UserModule,
+    AuthModule,
     TypeOrmModule.forFeature([Photo]),
     forwardRef(() => AlbumModule),
     forwardRef(() => TagModule),
