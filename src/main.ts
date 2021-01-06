@@ -4,6 +4,7 @@ import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import * as express from 'express';
 import path = require('path');
+import * as helmet from 'helmet';
 import { ValidationPipe } from '@nestjs/common';
 
 async function bootstrap() {
@@ -21,7 +22,7 @@ async function bootstrap() {
     .build();
   const document = SwaggerModule.createDocument(app, options);
   SwaggerModule.setup('api/docs', app, document);
-
+  app.use(helmet());
   await app.listen(3000);
 }
 bootstrap();
